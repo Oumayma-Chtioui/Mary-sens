@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createLocation, updateLocation, deleteLocation } from "@/lib/actions/locations";
 
 export default async function AdminLocationsPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: locations } = await supabase.from("locations").select("*").order("position");
 
   return (

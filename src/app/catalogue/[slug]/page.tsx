@@ -12,9 +12,10 @@ export const revalidate = 120;
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const product = await getProductBySlug(params.slug);
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
   if (!product) return {};
   return {
     title: `${product.name} — Mary'sens`,
@@ -35,9 +36,10 @@ const infoBlocks: Array<{ key: keyof NonNullable<Awaited<ReturnType<typeof getPr
   { key: "precautions", title: "Précautions" },
 ];
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const [product, settings] = await Promise.all([
-    getProductBySlug(params.slug),
+    getProductBySlug(slug),
     getSiteSettings(),
   ]);
 

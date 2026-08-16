@@ -5,7 +5,7 @@ async function login(formData: FormData) {
   "use server";
   const email = String(formData.get("email"));
   const password = String(formData.get("password"));
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
     redirect(`/admin/login?error=${encodeURIComponent(error.message)}`);
@@ -13,11 +13,13 @@ async function login(formData: FormData) {
   redirect("/admin");
 }
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string; redirectTo?: string };
+  searchParams: Promise<{ error?: string; redirectTo?: string }>;
 }) {
+  const params = await searchParams;
+
   if (!isSupabaseConfigured()) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-noir px-6 text-ivoire">
@@ -38,7 +40,7 @@ export default function LoginPage({
         <p className="eyebrow mb-2 text-or-clair">Administration</p>
         <h1 className="mb-8 font-display text-3xl">Mary&apos;sens</h1>
 
-        {searchParams.error && (
+        {params.error && (
           <p className="mb-5 border border-argile/40 bg-argile/10 px-4 py-3 text-sm text-argile">
             Identifiants incorrects. Réessayez.
           </p>

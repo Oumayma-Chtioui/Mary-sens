@@ -17,7 +17,7 @@ function readLocationFields(formData: FormData) {
 }
 
 export async function createLocation(formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("locations").insert(readLocationFields(formData));
   if (error) throw new Error(error.message);
   revalidatePath("/admin/points-de-vente");
@@ -25,7 +25,7 @@ export async function createLocation(formData: FormData) {
 }
 
 export async function updateLocation(locationId: string, formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("locations").update(readLocationFields(formData)).eq("id", locationId);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/points-de-vente");
@@ -33,7 +33,7 @@ export async function updateLocation(locationId: string, formData: FormData) {
 }
 
 export async function deleteLocation(locationId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("locations").delete().eq("id", locationId);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/points-de-vente");

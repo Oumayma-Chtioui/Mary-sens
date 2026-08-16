@@ -7,7 +7,7 @@ import type { Category, Location, Product } from "@/lib/types";
 
 export async function getCategories(): Promise<Category[]> {
   if (!isSupabaseConfigured()) return [];
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("categories")
     .select("*")
@@ -23,7 +23,7 @@ export async function getProducts(options?: {
   featuredOnly?: boolean;
 }): Promise<Product[]> {
   if (!isSupabaseConfigured()) return [];
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let query = supabase
     .from("products")
@@ -50,7 +50,7 @@ export async function getProducts(options?: {
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!isSupabaseConfigured()) return null;
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("products")
     .select("*, category:categories(*), images:product_images(*)")
@@ -63,7 +63,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getLocations(): Promise<Location[]> {
   if (!isSupabaseConfigured()) return [];
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("locations")
     .select("*")

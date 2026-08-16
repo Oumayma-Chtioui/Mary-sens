@@ -3,7 +3,7 @@ import { markMessageStatus, deleteMessage } from "@/lib/actions/messages";
 import { cx } from "@/lib/utils";
 
 export default async function AdminMessagesPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: messages } = await supabase
     .from("contact_messages")
     .select("*")

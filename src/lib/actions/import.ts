@@ -31,7 +31,7 @@ function truthy(value?: string) {
 }
 
 export async function importProducts(rows: ImportRow[]): Promise<ImportResult> {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: categories } = await supabase.from("categories").select("id,name");
   const categoryByName = new Map((categories ?? []).map((c) => [c.name.trim().toLowerCase(), c.id]));

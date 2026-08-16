@@ -9,8 +9,8 @@ export function isSupabaseConfigured() {
 
 // Server Component / Server Action client — respects the signed-in
 // user's session and therefore Row Level Security.
-export function createClient() {
-  const cookieStore = cookies();
+export async function createClient() {
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",

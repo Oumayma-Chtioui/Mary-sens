@@ -39,8 +39,8 @@ export default async function HomePage() {
         <div className="relative flex min-h-[380px] items-center justify-center overflow-hidden bg-[radial-gradient(120%_120%_at_30%_20%,#1c1915_0%,#141210_60%)] p-6">
           <DropMark className="absolute -right-14 -top-14 w-64 opacity-10" />
           <Image
-            src="/images/rollon.png"
-            alt="Roll-on Anti-Âge Mary'sens"
+            src={settings.hero_image}
+            alt={settings.hero_title}
             width={420}
             height={560}
             className="h-auto max-h-[640px] w-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.55)]"

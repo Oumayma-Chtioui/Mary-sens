@@ -6,7 +6,7 @@ import { DEFAULT_SETTINGS } from "@/lib/settings";
 import type { SiteSettings } from "@/lib/types";
 
 export async function updateSettings(formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const updated: SiteSettings = { ...DEFAULT_SETTINGS };
   for (const key of Object.keys(DEFAULT_SETTINGS) as Array<keyof SiteSettings>) {

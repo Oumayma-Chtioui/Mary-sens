@@ -4,10 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 import { updateProduct, addProductImage, deleteProductImage, setPrimaryImage } from "@/lib/actions/products";
 import ProductForm from "@/components/admin/ProductForm";
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = await createClient();
   const [{ data: product }, { data: categories }] = await Promise.all([
-    supabase.from("products").select("*, images:product_images(*)").eq("id", params.id).single(),
+    supabase.from("products").select("*, images:product_images(*)").eq("id", id).single(),
     supabase.from("categories").select("*").order("position"),
   ]);
 

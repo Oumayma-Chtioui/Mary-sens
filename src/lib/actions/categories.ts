@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils";
 
 export async function createCategory(formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "") || null;
 
@@ -21,7 +21,7 @@ export async function createCategory(formData: FormData) {
 }
 
 export async function updateCategory(categoryId: string, formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "") || null;
   const is_visible = formData.get("is_visible") === "on";
@@ -37,7 +37,7 @@ export async function updateCategory(categoryId: string, formData: FormData) {
 }
 
 export async function deleteCategory(categoryId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("categories").delete().eq("id", categoryId);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/categories");
@@ -45,7 +45,7 @@ export async function deleteCategory(categoryId: string) {
 }
 
 export async function reorderCategory(categoryId: string, position: number) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("categories").update({ position }).eq("id", categoryId);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/categories");

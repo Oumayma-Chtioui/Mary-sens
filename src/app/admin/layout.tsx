@@ -14,7 +14,7 @@ const navItems = [
 
 async function logout() {
   "use server";
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/admin/login");
 }
@@ -24,7 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     return <div className="min-h-screen bg-ivoire">{children}</div>;
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

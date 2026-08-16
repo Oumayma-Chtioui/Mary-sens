@@ -32,7 +32,7 @@ function readProductFields(formData: FormData) {
 }
 
 export async function createProduct(formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const fields = readProductFields(formData);
   const slug = slugify(fields.name);
 
@@ -50,7 +50,7 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function updateProduct(productId: string, formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const fields = readProductFields(formData);
 
   const { error } = await supabase.from("products").update(fields).eq("id", productId);
@@ -62,7 +62,7 @@ export async function updateProduct(productId: string, formData: FormData) {
 }
 
 export async function deleteProduct(productId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("products").delete().eq("id", productId);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/produits");
@@ -70,7 +70,7 @@ export async function deleteProduct(productId: string) {
 }
 
 export async function duplicateProduct(productId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: original } = await supabase.from("products").select("*").eq("id", productId).single();
   if (!original) throw new Error("Produit introuvable.");
 
@@ -88,7 +88,7 @@ export async function duplicateProduct(productId: string) {
 }
 
 export async function togglePublish(productId: string, next: boolean) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("products").update({ is_published: next }).eq("id", productId);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/produits");
@@ -96,7 +96,7 @@ export async function togglePublish(productId: string, next: boolean) {
 }
 
 export async function addProductImage(productId: string, formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const file = formData.get("file") as File;
   if (!file || file.size === 0) return;
 
@@ -132,14 +132,14 @@ export async function addProductImage(productId: string, formData: FormData) {
 }
 
 export async function deleteProductImage(productId: string, imageId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("product_images").delete().eq("id", imageId);
   if (error) throw new Error(error.message);
   revalidatePath(`/admin/produits/${productId}`);
 }
 
 export async function setPrimaryImage(productId: string, imageId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.from("product_images").update({ is_primary: false }).eq("product_id", productId);
   const { error } = await supabase.from("product_images").update({ is_primary: true }).eq("id", imageId);
   if (error) throw new Error(error.message);

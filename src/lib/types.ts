@@ -81,6 +81,7 @@ export type SiteSettings = {
   hero_title: string;
   hero_tagline: string;
   hero_description: string;
+  hero_image: string;
   hero_cta_primary: string;
   hero_cta_secondary: string;
   about_story: string;

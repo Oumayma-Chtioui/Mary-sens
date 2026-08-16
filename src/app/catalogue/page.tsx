@@ -14,11 +14,12 @@ export const revalidate = 120;
 export default async function CataloguePage({
   searchParams,
 }: {
-  searchParams: { categorie?: string; q?: string };
+  searchParams: Promise<{ categorie?: string; q?: string }>;
 }) {
+  const params = await searchParams;
   const [categories, products] = await Promise.all([
     getCategories(),
-    getProducts({ categorySlug: searchParams.categorie, search: searchParams.q }),
+    getProducts({ categorySlug: params.categorie, search: params.q }),
   ]);
 
   return (
@@ -29,11 +30,11 @@ export default async function CataloguePage({
           <h1 className="mt-3 font-display text-4xl font-medium md:text-5xl">Tous nos produits</h1>
         </div>
         <form className="flex w-full max-w-xs items-center border border-ink/20 md:w-auto" action="/catalogue">
-          {searchParams.categorie && <input type="hidden" name="categorie" value={searchParams.categorie} />}
+          {params.categorie && <input type="hidden" name="categorie" value={params.categorie} />}
           <input
             type="text"
             name="q"
-            defaultValue={searchParams.q}
+            defaultValue={params.q}
             placeholder="Rechercher un produit…"
             className="w-full bg-transparent px-4 py-2.5 text-sm outline-none placeholder:text-ink/40"
           />
@@ -51,7 +52,7 @@ export default async function CataloguePage({
           href="/catalogue"
           className={cx(
             "px-4 py-2 text-[12.5px] uppercase tracking-[0.08em]",
-            !searchParams.categorie ? "bg-noir text-or-clair" : "border border-ink/20 text-ink/70 hover:border-ink/40"
+            !params.categorie ? "bg-noir text-or-clair" : "border border-ink/20 text-ink/70 hover:border-ink/40"
           )}
         >
           Tous
@@ -62,7 +63,7 @@ export default async function CataloguePage({
             href={`/catalogue?categorie=${c.slug}`}
             className={cx(
               "px-4 py-2 text-[12.5px] uppercase tracking-[0.08em]",
-              searchParams.categorie === c.slug
+              params.categorie === c.slug
                 ? "bg-noir text-or-clair"
                 : "border border-ink/20 text-ink/70 hover:border-ink/40"
             )}

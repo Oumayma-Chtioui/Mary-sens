@@ -22,6 +22,15 @@ export default async function AdminSettingsPage() {
           <Field label="Titre du hero" name="hero_title" defaultValue={settings.hero_title} />
           <Field label="Accroche (tagline)" name="hero_tagline" defaultValue={settings.hero_tagline} />
           <Field label="Texte du hero" name="hero_description" defaultValue={settings.hero_description} textarea />
+          <Field
+            label="Image du hero (URL)"
+            name="hero_image"
+            defaultValue={settings.hero_image}
+          />
+          <p className="-mt-3 text-xs text-ink/45">
+            Collez une URL d&apos;image (ex. celle d&apos;une photo produit déjà téléversée depuis une
+            fiche produit dans l&apos;admin, clic droit → copier l&apos;adresse de l&apos;image).
+          </p>
           <Field label="Bouton principal" name="hero_cta_primary" defaultValue={settings.hero_cta_primary} />
           <Field label="Bouton secondaire" name="hero_cta_secondary" defaultValue={settings.hero_cta_secondary} />
         </Section>

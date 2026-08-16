@@ -3,7 +3,7 @@ import { createProduct } from "@/lib/actions/products";
 import ProductForm from "@/components/admin/ProductForm";
 
 export default async function NewProductPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: categories } = await supabase.from("categories").select("*").order("position");
 
   return (

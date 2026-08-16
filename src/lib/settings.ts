@@ -18,6 +18,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   hero_tagline: "Soin & bien-être naturel",
   hero_description:
     "Des huiles essentielles et végétales 100% pures et bio, pensées pour prendre soin de vous, naturellement.",
+  hero_image: "/images/rollon.png",
   hero_cta_primary: "Découvrir nos produits",
   hero_cta_secondary: "Commander sur WhatsApp",
   about_story: "À compléter depuis l'administration (Contenu du site > La marque).",
@@ -36,7 +37,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   if (!isSupabaseConfigured()) return DEFAULT_SETTINGS;
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data } = await supabase.from("site_settings").select("data").eq("id", 1).single();
     if (!data?.data) return DEFAULT_SETTINGS;
     return { ...DEFAULT_SETTINGS, ...data.data };

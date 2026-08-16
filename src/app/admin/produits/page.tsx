@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { deleteProduct, duplicateProduct, togglePublish } from "@/lib/actions/products";
 
 export default async function AdminProductsPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: products } = await supabase
     .from("products")
     .select("id,name,is_published,is_featured,is_available,price,category:categories(name)")
