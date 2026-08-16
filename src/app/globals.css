@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: theme("colors.ivoire.DEFAULT");
+  color: theme("colors.ink");
+}
+
+@layer components {
+  .wrap {
+    @apply mx-auto max-w-wrap px-6 md:px-12;
+  }
+  .eyebrow {
+    @apply font-sans uppercase tracking-widest2 text-[11px] md:text-xs font-medium text-or-deep;
+  }
+  .btn {
+    @apply inline-flex items-center gap-2 px-6 py-3 text-[13px] uppercase tracking-[0.1em] font-medium transition-all duration-300 rounded-[2px];
+  }
+  .btn-dark {
+    @apply bg-noir text-or-clair border border-noir hover:bg-transparent hover:text-noir;
+  }
+  .btn-ghost {
+    @apply border border-ink text-ink hover:bg-ink hover:text-ivoire;
+  }
+  .btn-gold {
+    @apply text-noir border border-or-deep;
+    background: linear-gradient(120deg, theme("colors.or.deep"), theme("colors.or.DEFAULT"));
+  }
+  .divider-motif {
+    @apply flex items-center justify-center py-10;
+  }
+}
+
+/* Recurring signature mark, drawn from the Mary'sens droplet+leaf logo.
+   Used as a quiet section divider rather than a generic icon. */
+.drop-mark {
+  width: 30px;
+  height: auto;
+  opacity: 0.85;
+}
