@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Search } from "lucide-react";
 import { getCategories, getProducts } from "@/lib/queries";
 import ProductCard from "@/components/site/ProductCard";
 import { cx } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Catalogue — Mary'sens",
+  title: "Boutique — Mary'sens",
   description: "Huiles essentielles, huiles végétales, soins et bien-être Mary'sens.",
 };
 
@@ -23,36 +24,36 @@ export default async function CataloguePage({
   ]);
 
   return (
-    <div className="wrap py-16">
-      <div className="mb-10 flex flex-wrap items-end justify-between gap-6 border-b border-border pb-10">
-        <div>
-          <span className="eyebrow">Catalogue</span>
-          <h1 className="mt-3 font-display text-4xl font-medium md:text-5xl">Tous nos produits</h1>
-        </div>
-        <form className="flex w-full max-w-xs items-center border border-ink/20 md:w-auto" action="/catalogue">
-          {params.categorie && <input type="hidden" name="categorie" value={params.categorie} />}
-          <input
-            type="text"
-            name="q"
-            defaultValue={params.q}
-            placeholder="Rechercher un produit…"
-            className="w-full bg-transparent px-4 py-2.5 text-sm outline-none placeholder:text-ink/40"
-          />
-          <button type="submit" className="px-4 text-ink/60" aria-label="Rechercher">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m21 21-4.3-4.3" />
-            </svg>
-          </button>
-        </form>
+    <div className="min-h-screen bg-black px-6 py-10 md:px-12">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <p className="text-[10px] uppercase tracking-[0.28em] text-or">
+          Collection naturelle · 100% pure &amp; bio
+        </p>
+        <h1 className="font-display text-4xl font-semibold text-white">Notre Boutique</h1>
+        <p className="text-sm text-white/50">Découvrez nos huiles et soins 100% naturels et bio</p>
       </div>
 
-      <div className="mb-12 flex flex-wrap gap-2.5">
+      <form
+        className="mx-auto mt-6 flex w-full max-w-sm items-center rounded-full border border-white/15 bg-[#0a0a0a] px-4"
+        action="/catalogue"
+      >
+        {params.categorie && <input type="hidden" name="categorie" value={params.categorie} />}
+        <Search className="size-4 text-white/40" />
+        <input
+          type="text"
+          name="q"
+          defaultValue={params.q}
+          placeholder="Rechercher un produit…"
+          className="w-full bg-transparent px-3 py-2.5 text-sm text-white outline-none placeholder:text-white/35"
+        />
+      </form>
+
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
           href="/catalogue"
           className={cx(
-            "px-4 py-2 text-[12.5px] uppercase tracking-[0.08em]",
-            !params.categorie ? "bg-noir text-or-clair" : "border border-ink/20 text-ink/70 hover:border-ink/40"
+            "rounded-full border px-5 py-2 text-sm",
+            !params.categorie ? "border-or bg-or text-black" : "border-white/15 text-white/75 hover:border-white/40"
           )}
         >
           Tous
@@ -62,10 +63,10 @@ export default async function CataloguePage({
             key={c.id}
             href={`/catalogue?categorie=${c.slug}`}
             className={cx(
-              "px-4 py-2 text-[12.5px] uppercase tracking-[0.08em]",
+              "rounded-full border px-5 py-2 text-sm",
               params.categorie === c.slug
-                ? "bg-noir text-or-clair"
-                : "border border-ink/20 text-ink/70 hover:border-ink/40"
+                ? "border-or bg-or text-black"
+                : "border-white/15 text-white/75 hover:border-white/40"
             )}
           >
             {c.name}
@@ -73,22 +74,24 @@ export default async function CataloguePage({
         ))}
       </div>
 
-      {products.length > 0 ? (
-        <div className="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      ) : (
-        <div className="border border-dashed border-border px-8 py-20 text-center">
-          <p className="font-display text-xl">Aucun produit trouvé</p>
-          <p className="mx-auto mt-2 max-w-sm text-sm text-ink/55">
-            {categories.length === 0
-              ? "Le catalogue est vide pour le moment. Ajoutez vos produits depuis l'administration."
-              : "Essayez une autre recherche ou une autre catégorie."}
-          </p>
-        </div>
-      )}
+      <div className="mt-8">
+        {products.length > 0 ? (
+          <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-white/15 px-8 py-20 text-center">
+            <p className="font-display text-xl text-white">Aucun produit trouvé</p>
+            <p className="mx-auto mt-2 max-w-sm text-sm text-white/50">
+              {categories.length === 0
+                ? "La boutique est vide pour le moment. Ajoutez vos produits depuis l'administration."
+                : "Essayez une autre recherche ou une autre catégorie."}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

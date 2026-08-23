@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Heart } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
 
@@ -8,46 +9,45 @@ export default function ProductCard({ product }: { product: Product }) {
     product.images?.find((i) => i.is_primary)?.url ?? product.images?.[0]?.url;
 
   return (
-    <Link href={`/catalogue/${product.slug}`} className="group flex flex-col bg-ivoire transition-colors hover:bg-ivoire-2">
-      <div className="relative aspect-[1/1.08] overflow-hidden bg-ivoire-2">
-        {primaryImage ? (
-          <Image
-            src={primaryImage}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045]"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-xs text-ink/30">
-            Image à venir
-          </div>
-        )}
-        {!product.is_available && (
-          <span className="absolute left-3 top-3 bg-noir px-2.5 py-1 text-[10px] uppercase tracking-[0.1em] text-or-clair">
-            Indisponible
-          </span>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col gap-2 p-5">
-        {product.category && <span className="eyebrow text-[10.5px]">{product.category.name}</span>}
-        <h3 className="font-display text-lg leading-tight">{product.name}</h3>
-        {product.short_description && (
-          <p dir="auto" className="flex-1 text-[13px] leading-relaxed text-ink/60">{product.short_description}</p>
-        )}
-        <div className="mt-2 flex items-center justify-between">
-          {product.price_visible && product.price != null ? (
-            <span className="text-sm font-medium">{formatPrice(product.price)}</span>
+    <div className="overflow-hidden rounded-lg border border-white/10 bg-[#171717]">
+      <Link href={`/catalogue/${product.slug}`} className="block">
+        <div className="relative h-36 bg-white/5">
+          {primaryImage ? (
+            <Image src={primaryImage} alt={product.name} fill className="object-cover" />
           ) : (
-            <span className="text-[11px] uppercase tracking-[0.08em] text-ink/40">Sur demande</span>
+            <div className="flex h-full items-center justify-center text-xs text-white/30">
+              Image à venir
+            </div>
           )}
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.1em] text-or-deep">
-            Découvrir
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-3 w-3 transition-transform group-hover:translate-x-1">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
+          {!product.is_available && (
+            <span className="absolute left-3 top-3 rounded-full bg-black/80 px-2.5 py-1 text-[10px] uppercase tracking-[0.08em] text-white/70">
+              Indisponible
+            </span>
+          )}
+          <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-[#0a0a0a]/80">
+            <Heart className="size-4 text-white/70" />
           </span>
         </div>
+      </Link>
+      <div className="flex flex-col gap-1 p-3">
+        <Link href={`/catalogue/${product.slug}`}>
+          <h3 className="text-sm font-medium text-white hover:text-or">{product.name}</h3>
+        </Link>
+        <p className="text-xs text-white/45">{product.category?.name ?? "100% Pure et Bio"}</p>
+        <div className="flex items-center justify-between pt-2">
+          {product.price_visible && product.price != null ? (
+            <span className="font-semibold text-or">{formatPrice(product.price)}</span>
+          ) : (
+            <span className="text-[11px] uppercase tracking-[0.06em] text-white/40">Sur demande</span>
+          )}
+          <Link
+            href={`/catalogue/${product.slug}`}
+            className="rounded-full border border-or px-3 py-1 text-[11px] text-or transition-colors hover:bg-or hover:text-black"
+          >
+            Découvrir
+          </Link>
+        </div>
       </div>
-    </Link>
+    </div>
   );
 }

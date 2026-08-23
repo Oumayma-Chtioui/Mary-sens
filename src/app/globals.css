@@ -7,8 +7,7 @@ html {
 }
 
 body {
-  background: theme("colors.ivoire.DEFAULT");
-  color: theme("colors.ink");
+  margin: 0;
 }
 
 @layer components {

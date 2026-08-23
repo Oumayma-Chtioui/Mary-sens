@@ -1,5 +1,5 @@
 {
-  "name": "mary-sens",
+  "name": "marysens",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -14,6 +14,7 @@
     "react-dom": "18.3.1",
     "@supabase/supabase-js": "^2.45.0",
     "@supabase/ssr": "^0.4.0",
+    "lucide-react": "^0.460.0",
     "papaparse": "^5.4.1",
     "slugify": "^1.6.6"
   },

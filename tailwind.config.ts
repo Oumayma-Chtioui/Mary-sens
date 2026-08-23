@@ -9,9 +9,9 @@ const config: Config = {
         noir: "#141210",
         "noir-2": "#1c1915",
         or: {
-          deep: "#A9803F",
-          DEFAULT: "#C9A24B",
-          clair: "#E7CE97",
+          deep: "#8f6f30",
+          DEFAULT: "#B08A3E",
+          clair: "#E4C98A",
         },
         ivoire: {
           DEFAULT: "#F8F4EC",
@@ -20,15 +20,16 @@ const config: Config = {
         sauge: "#707C5E",
         argile: "#A9432E",
         border: "rgba(33,29,23,0.12)",
+        // Public-site palette, matched exactly to the provided design screens.
+        panel: "#0b0b0a",
+        "panel-2": "#11110f",
+        card: "#171717",
+        "card-border": "rgba(255,255,255,0.1)",
       },
       fontFamily: {
-        // Display: mirrors the high-contrast Bodoni-esque serif used in
-        // Mary'sens' own packaging headlines (e.g. "ROLL-ON ANTI-ÂGE").
+        // Matches the provided design screens: Source Serif 4 for headings.
         display: ["var(--font-display)", "serif"],
-        // Accent script: mirrors the flowing tagline lettering on packaging
-        // ("L'élixir de jeunesse"). Used sparingly, never for body text.
-        script: ["var(--font-script)", "cursive"],
-        // Body / UI: warm editorial grotesque, not a default AI sans.
+        // Body / UI, matches the provided screens (Inter).
         sans: ["var(--font-sans)", "sans-serif"],
       },
       letterSpacing: {

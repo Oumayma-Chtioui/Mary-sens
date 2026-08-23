@@ -3,15 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { Home, Leaf, Info, Mail, MessageCircle, Menu, X } from "lucide-react";
 import { buildWhatsAppLink, generalContactMessage } from "@/lib/whatsapp";
 import type { SiteSettings } from "@/lib/types";
 
 const links = [
-  { href: "/", label: "Accueil" },
-  { href: "/a-propos", label: "La marque" },
-  { href: "/catalogue", label: "Catalogue" },
-  { href: "/points-de-vente", label: "Points de vente" },
-  { href: "/contact", label: "Contact" },
+  { href: "/", label: "Accueil", icon: Home },
+  { href: "/catalogue", label: "Boutique", icon: Leaf },
+  { href: "/a-propos", label: "À propos", icon: Info },
+  { href: "/contact", label: "Contact", icon: Mail },
 ];
 
 export default function Nav({ settings }: { settings: SiteSettings }) {
@@ -19,52 +19,70 @@ export default function Nav({ settings }: { settings: SiteSettings }) {
   const waLink = buildWhatsAppLink(settings.whatsapp_number, generalContactMessage());
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-ivoire/90 backdrop-blur-md">
-      <nav className="wrap flex h-20 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5">
-          <Image src={settings.logo_url} alt={settings.brand_name} width={28} height={28} className="h-7 w-auto" />
-          <span className="font-display text-lg tracking-wide">{settings.brand_name.toUpperCase()}</span>
+    <header className="border-b border-white/10 bg-black">
+      <nav className="mx-auto flex h-20 max-w-[1400px] items-center justify-between px-6 md:px-12">
+        <Link href="/" className="flex items-baseline gap-1.5">
+          <Image src={settings.logo_url} alt={settings.brand_name} width={26} height={26} className="mb-0.5 h-6 w-auto" />
+          <span className="font-display text-2xl font-semibold tracking-wide text-or">{settings.brand_name}</span>
         </Link>
 
-        <div className="hidden items-center gap-9 md:flex">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="text-[13px] font-medium uppercase tracking-[0.12em] text-ink/85 transition-colors hover:text-or-deep"
-            >
-              {l.label}
-            </Link>
-          ))}
-        </div>
-
-        <a href={waLink} target="_blank" rel="noopener noreferrer" className="btn btn-gold hidden md:inline-flex">
-          Commander sur WhatsApp
-        </a>
-
-        <button
-          className="text-[12px] font-medium uppercase tracking-[0.1em] md:hidden"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Ouvrir le menu"
-        >
-          {open ? "Fermer" : "Menu"}
-        </button>
-      </nav>
-
-      {open && (
-        <div className="border-t border-border bg-ivoire md:hidden">
-          <div className="wrap flex flex-col gap-1 py-4">
-            {links.map((l) => (
+        <div className="hidden items-center gap-8 md:flex">
+          {links.map((l) => {
+            const Icon = l.icon;
+            return (
               <Link
                 key={l.href}
                 href={l.href}
-                onClick={() => setOpen(false)}
-                className="py-3 text-sm font-medium uppercase tracking-[0.1em] text-ink/85"
+                className="flex items-center gap-2 pb-1 text-sm text-white/75 transition-colors hover:text-white"
               >
+                <Icon className="size-4 text-or" />
                 {l.label}
               </Link>
-            ))}
-            <a href={waLink} target="_blank" rel="noopener noreferrer" className="btn btn-gold mt-2 justify-center">
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-4">
+          <span className="hidden text-xl md:inline">🇹🇳</span>
+          <a
+            href={waLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden size-10 items-center justify-center rounded-full border border-or/50 text-or transition-colors hover:bg-or hover:text-black md:flex"
+            aria-label="Commander sur WhatsApp"
+          >
+            <MessageCircle className="size-4" />
+          </a>
+          <button className="text-white md:hidden" onClick={() => setOpen((v) => !v)} aria-label="Menu">
+            {open ? <X className="size-6" /> : <Menu className="size-6" />}
+          </button>
+        </div>
+      </nav>
+
+      {open && (
+        <div className="border-t border-white/10 bg-black md:hidden">
+          <div className="flex flex-col gap-1 px-6 py-4">
+            {links.map((l) => {
+              const Icon = l.icon;
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 py-3 text-sm text-white/85"
+                >
+                  <Icon className="size-4 text-or" />
+                  {l.label}
+                </Link>
+              );
+            })}
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 flex items-center justify-center gap-2 rounded-full bg-or px-6 py-3 text-sm font-medium text-black"
+            >
+              <MessageCircle className="size-4" />
               Commander sur WhatsApp
             </a>
           </div>

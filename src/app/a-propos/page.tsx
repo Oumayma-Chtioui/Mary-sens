@@ -1,48 +1,95 @@
+import Image from "next/image";
 import type { Metadata } from "next";
+import { BadgeCheck, MapPin, Sprout } from "lucide-react";
 import { getSiteSettings } from "@/lib/settings";
-import DropMark from "@/components/site/DropMark";
 
-export const metadata: Metadata = { title: "La marque — Mary'sens" };
+export const metadata: Metadata = { title: "À propos — Mary'sens" };
 export const revalidate = 300;
+
+const ingredientStrip = [
+  { src: "/images/amande.png", alt: "Huile d'Amande Douce" },
+  { src: "/images/rollon.png", alt: "Roll-on Anti-Âge" },
+  { src: "/images/serum.png", alt: "Sérum Hydratant Concentré" },
+  { src: "/images/deodorant.png", alt: "Déodorant Naturel" },
+];
 
 export default async function AboutPage() {
   const settings = await getSiteSettings();
+  const storyParagraphs = settings.about_story.split("\n\n").filter(Boolean);
 
   return (
-    <div>
-      <section className="bg-noir py-24 text-ivoire md:py-32">
-        <div className="wrap max-w-3xl">
-          <span className="eyebrow">La marque</span>
-          <h1 className="mt-4 font-display text-4xl font-medium leading-tight md:text-6xl">
-            Mary&apos;sens, {settings.hero_tagline.toLowerCase()}
-          </h1>
+    <div className="min-h-screen bg-[#0b0b0a] font-display">
+      {/* HERO BANNER */}
+      <div className="relative h-64 w-full overflow-hidden md:h-72">
+        <Image src="/images/rollon.png" alt={settings.brand_name} fill className="object-cover opacity-40" />
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6">
+          <span className="text-xs uppercase tracking-[0.28em] text-or">{settings.brand_name}</span>
+          <h1 className="text-4xl font-semibold tracking-wide text-white md:text-5xl">Notre Histoire</h1>
+          <div className="my-2 h-px w-full max-w-md bg-or/30" />
         </div>
-      </section>
+      </div>
 
-      <div className="divider-motif"><DropMark /></div>
+      {/* STORY + VALUES */}
+      <div className="grid grid-cols-1 gap-10 bg-[#11110f] px-6 py-10 md:grid-cols-[1.5fr_1fr] md:gap-12 md:px-12 md:py-12">
+        <div className="flex flex-col gap-4">
+          <h2 className="text-2xl font-semibold text-or">La Marque tunisienne de référence</h2>
+          <div className="h-px w-16 bg-or" />
+          {storyParagraphs.map((p, i) => (
+            <p key={i} className="font-sans text-sm leading-relaxed text-white/85">
+              {p}
+            </p>
+          ))}
+        </div>
 
-      <section className="wrap grid grid-cols-1 gap-16 py-20 md:grid-cols-3">
-        <div>
-          <h2 className="mb-3 font-display text-2xl">Notre histoire</h2>
-          <p className="whitespace-pre-line text-[14.5px] leading-relaxed text-ink/70">{settings.about_story}</p>
-        </div>
-        <div>
-          <h2 className="mb-3 font-display text-2xl">Notre mission</h2>
-          <p className="whitespace-pre-line text-[14.5px] leading-relaxed text-ink/70">{settings.about_mission}</p>
-        </div>
-        <div>
-          <h2 className="mb-3 font-display text-2xl">Nos valeurs</h2>
-          <p className="whitespace-pre-line text-[14.5px] leading-relaxed text-ink/70">{settings.about_values}</p>
-        </div>
-      </section>
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-3 rounded-lg bg-[#22211e] p-1 font-sans text-xs text-white">
+            <span className="rounded-md bg-white/10 py-2 text-center">Naturel</span>
+            <span className="py-2 text-center text-white/60">Tunisie</span>
+            <span className="py-2 text-center text-white/60">Bio</span>
+          </div>
 
-      <section className="border-t border-border bg-ivoire-2 py-20">
-        <div className="wrap max-w-2xl text-center">
-          <p className="font-display text-2xl leading-relaxed md:text-3xl">
-            &laquo; {settings.description} &raquo;
-          </p>
+          <ValueCard icon={Sprout} title="100% Naturel" desc="Des ingrédients purs, sans additifs ni produits chimiques." />
+          <ValueCard icon={MapPin} title="Fabriqué en Tunisie 🇹🇳" desc="Un savoir-faire artisanal ancré dans notre terroir." />
+          <ValueCard icon={BadgeCheck} title="Qualité Certifiée Bio" desc="Une certification biologique garantie à chaque étape." />
         </div>
-      </section>
+      </div>
+
+      {/* INGREDIENT STRIP */}
+      <div className="bg-[#0b0b0a] px-6 pb-8 md:px-12">
+        <div className="mb-4 flex items-center gap-4">
+          <div className="h-px flex-1 bg-or/50" />
+          <span className="font-sans text-sm uppercase tracking-[0.2em] text-or">De la nature au flacon</span>
+          <div className="h-px flex-1 bg-or/50" />
+        </div>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {ingredientStrip.map((img) => (
+            <div key={img.src} className="relative aspect-square overflow-hidden rounded-sm border-2 border-or/70">
+              <Image src={img.src} alt={img.alt} fill className="object-cover" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ValueCard({
+  icon: Icon,
+  title,
+  desc,
+}: {
+  icon: typeof Sprout;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <div className="flex items-start gap-4 rounded-lg border border-white/10 p-4">
+      <Icon className="size-7 shrink-0 text-or" strokeWidth={1.4} />
+      <div className="flex flex-col gap-1">
+        <span className="font-sans text-base font-semibold text-white">{title}</span>
+        <span className="font-sans text-xs text-white/65">{desc}</span>
+      </div>
     </div>
   );
 }

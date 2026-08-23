@@ -1,38 +1,46 @@
-# Direction design — Mary'sens
+# Direction design — Mary'sens (v2)
 
-Tout ce qui suit est dérivé de vos assets réels (logo, photos produit), pas de
-choix par défaut.
+Cette version remplace la direction éditoriale ivoire/Bodoni Moda précédente par
+le design fourni par le client (5 écrans Flowstep), repris à l'identique.
 
 ## Typographie
 
-| Rôle | Police | Pourquoi |
-|---|---|---|
-| Titres / display | **Bodoni Moda** | Vos visuels produit utilisent déjà un serif à fort contraste en capitales pour les gros titres ("ROLL-ON ANTI-ÂGE") — c'est un style Didone/Bodoni. Plutôt que d'imposer un serif "premium" générique (Playfair, Fraunces...), on reprend le même registre que vous utilisez déjà sur vos packagings. |
-| Accent / tagline | **Petit Formal Script** | Vos visuels utilisent une véritable écriture cursive fine pour les accroches ("L'élixir de jeunesse"). Réservée aux taglines courtes, jamais au corps de texte. |
-| Corps / interface | **Libre Franklin** | Grotesque chaleureux, très lisible, bon support des accents français. Volontairement différent d'Inter/Jost pour éviter la signature "site généré". |
+| Rôle | Police |
+|---|---|
+| Titres / display | **Source Serif 4** |
+| Corps / interface | **Inter** |
 
 ## Couleurs
 
-Extraites du logo et des photos produit (bouteilles noires à texte doré, sérum
-blanc à logo doré, packaging vert/menthe pour le déodorant) :
+- `#000000` / `#0b0b0a` — fond principal du site public (noir)
+- `#B08A3E` — or, couleur d'accent principale (boutons, liens actifs, icônes)
+- `#E4C98A` — or clair, réservé aux petits libellés sur fond sombre (eyebrow du hero)
+- `#171717` / `#0a0a0a` — panneaux et cartes sur fond noir
+- Blanc à opacité variable (`white/50`, `white/65`, `white/85`...) pour la hiérarchie du texte
 
-- `noir` `#141210` — fond des sections fortes, texte sur fond clair
-- `or` `#C9A24B` / `or-deep` `#A9803F` / `or-clair` `#E7CE97` — dégradé doré du
-  logo, boutons, accents
-- `ivoire` `#F8F4EC` — fond principal (proche du fond des photos produit)
-- `sauge` `#707C5E` — touche botanique (feuilles, menthe), utilisé avec parcimonie
-  pour les états "disponible"
-- `argile` `#A9432E` — touche organique (figue de barbarie), réservée aux états
-  d'erreur/alerte pour rester rare et intentionnelle
+## Icônes
 
-## Élément signature
+Le design utilise des icônes `lucide-react` (Home, Leaf, Info, Mail, ShoppingCart,
+Heart, etc.) au lieu du motif goutte+feuille dessiné à la main de la v1.
 
-Le motif goutte + feuille du logo est redessiné en trait fin (`DropMark.tsx`) et
-réutilisé comme séparateur de section plutôt que comme icône générique — c'est la
-seule "décoration" récurrente du site.
+## Ce qui reste inchangé
 
-## Ce qu'on a évité volontairement
+- L'espace d'administration (`/admin`) garde son thème ivoire/clair — aucun écran
+  n'a été fourni pour l'admin, donc il n'a pas été retouché.
+- Toute la logique métier (Supabase, WhatsApp, CSV, RLS) est identique à la v1 —
+  seul l'habillage visuel du site public a changé.
 
-Dégradés violets/bleus SaaS, cards à coins très arrondis, glassmorphism, hero
-centré générique bouton+image stock, Inter par défaut — voir le brief initial
-pour la liste complète des écueils identifiés en amont.
+## Écarts assumés par rapport aux écrans fournis
+
+- **Photos** : les écrans utilisaient des photos Unsplash génériques. Sur demande
+  du client, elles ont été remplacées par les vraies photos produit Mary'sens
+  (`public/images/`), en gardant la mise en page identique.
+- **Points de vente** : aucun écran n'était fourni pour cette page. Elle a été
+  conçue dans la même langue visuelle (cartes sombres, accents or) sur demande du
+  client.
+- **Panier / avis clients / réductions** : les écrans montrent un panier
+  d'achat classique, des étoiles d'avis et des prix barrés — aucun de ces éléments
+  n'existe dans le modèle de données actuel (catalogue + commande WhatsApp). Les
+  éléments visuels correspondants (icône panier, cœur favori) sont conservés à
+  l'écran pour respecter le design, mais ne sont pas fonctionnels tant que ces
+  fonctionnalités ne sont pas développées.

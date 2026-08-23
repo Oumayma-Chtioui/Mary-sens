@@ -72,3 +72,21 @@ export async function getLocations(): Promise<Location[]> {
   if (error) return [];
   return data ?? [];
 }
+
+export async function getRelatedProducts(
+  categoryId: string | null,
+  excludeProductId: string,
+  limit = 4
+): Promise<Product[]> {
+  if (!isSupabaseConfigured() || !categoryId) return [];
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("*, category:categories(*), images:product_images(*)")
+    .eq("is_published", true)
+    .eq("category_id", categoryId)
+    .neq("id", excludeProductId)
+    .limit(limit);
+  if (error) return [];
+  return data ?? [];
+}

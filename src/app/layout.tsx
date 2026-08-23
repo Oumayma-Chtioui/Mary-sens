@@ -1,32 +1,22 @@
 import type { Metadata } from "next";
-import { Bodoni_Moda, Petit_Formal_Script, Libre_Franklin } from "next/font/google";
+import { Source_Serif_4, Inter } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/site/Nav";
 import Footer from "@/components/site/Footer";
 import WhatsAppFloat from "@/components/site/WhatsAppFloat";
 import { getSiteSettings } from "@/lib/settings";
 
-// Display face: mirrors the high-contrast, chiselled serif Mary'sens already
-// uses on packaging headlines ("ROLL-ON ANTI-ÂGE"). Deliberately not
-// Fraunces/Playfair — chosen to match the brand's own type character.
-const display = Bodoni_Moda({
+// Matches the provided design screens exactly (Flowstep exports use
+// Source Serif 4 for headings, Inter for body/UI).
+const display = Source_Serif_4({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
   variable: "--font-display",
 });
 
-// Accent script: mirrors the flowing tagline lettering on packaging
-// ("L'élixir de jeunesse"). Reserved for short taglines only.
-const script = Petit_Formal_Script({
+const sans = Inter({
   subsets: ["latin"],
-  weight: "400",
-  variable: "--font-script",
-});
-
-// Body / UI: warm editorial grotesque with full French diacritic support.
-const sans = Libre_Franklin({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-sans",
 });
 
@@ -52,8 +42,8 @@ export default async function RootLayout({
   const settings = await getSiteSettings();
 
   return (
-    <html lang="fr" className={`${display.variable} ${script.variable} ${sans.variable}`}>
-      <body className="font-sans antialiased">
+    <html lang="fr" className={`${display.variable} ${sans.variable}`}>
+      <body className="bg-black font-sans text-white antialiased">
         <Nav settings={settings} />
         {children}
         <Footer settings={settings} />
