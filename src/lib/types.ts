@@ -60,6 +60,61 @@ export type Location = {
   position: number;
 };
 
+export type OrderStatus =
+  | "Nouvelle"
+  | "Confirmée"
+  | "En préparation"
+  | "Expédiée"
+  | "Livrée"
+  | "Annulée";
+
+export const ORDER_STATUSES: OrderStatus[] = [
+  "Nouvelle",
+  "Confirmée",
+  "En préparation",
+  "Expédiée",
+  "Livrée",
+  "Annulée",
+];
+
+// A line in the client-side cart, kept intentionally minimal — the server
+// re-fetches trusted product data at order time rather than relying on this.
+export type CartItem = {
+  productId: string;
+  slug: string;
+  name: string;
+  image: string | null;
+  unitPrice: number | null;
+  priceVisible: boolean;
+  quantity: number;
+};
+
+export type OrderItem = {
+  id: string;
+  order_id: string;
+  product_id: string | null;
+  product_name: string;
+  unit_price: number;
+  quantity: number;
+  subtotal: number;
+};
+
+export type Order = {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string | null;
+  customer_address: string;
+  customer_city: string;
+  notes: string | null;
+  status: OrderStatus;
+  total_amount: number;
+  created_at: string;
+  updated_at: string;
+  items?: OrderItem[];
+};
+
 export type ContactMessage = {
   id: string;
   name: string;

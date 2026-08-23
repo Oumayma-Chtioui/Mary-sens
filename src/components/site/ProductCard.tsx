@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
+import AddToCartButton from "@/components/site/AddToCartButton";
 
 export default function ProductCard({ product }: { product: Product }) {
   const primaryImage =
@@ -40,12 +41,16 @@ export default function ProductCard({ product }: { product: Product }) {
           ) : (
             <span className="text-[11px] uppercase tracking-[0.06em] text-white/40">Sur demande</span>
           )}
-          <Link
-            href={`/catalogue/${product.slug}`}
-            className="rounded-full border border-or px-3 py-1 text-[11px] text-or transition-colors hover:bg-or hover:text-black"
-          >
-            Découvrir
-          </Link>
+          {product.is_available ? (
+            <AddToCartButton product={product} size="compact" />
+          ) : (
+            <Link
+              href={`/catalogue/${product.slug}`}
+              className="rounded-full border border-or px-3 py-1 text-[11px] text-or transition-colors hover:bg-or hover:text-black"
+            >
+              Découvrir
+            </Link>
+          )}
         </div>
       </div>
     </div>

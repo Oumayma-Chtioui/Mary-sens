@@ -6,6 +6,7 @@ const navItems = [
   { href: "/admin", label: "Tableau de bord" },
   { href: "/admin/produits", label: "Produits" },
   { href: "/admin/categories", label: "Catégories" },
+  { href: "/admin/commandes", label: "Commandes" },
   { href: "/admin/points-de-vente", label: "Points de vente" },
   { href: "/admin/messages", label: "Messages" },
   { href: "/admin/import", label: "Importer (CSV)" },

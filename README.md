@@ -46,6 +46,18 @@ Dans le **SQL Editor** de Supabase, collez et exécutez le contenu de
 `supabase/schema.sql`. Cela crée toutes les tables, les policies RLS, les triggers,
 et le bucket de stockage `marysens-media` pour les images.
 
+Puis, exécutez également `supabase/orders_module.sql` (dans le même SQL Editor)
+pour activer le panier / la commande / le suivi de commande : cela ajoute
+uniquement les tables `orders` et `order_items` et leurs policies RLS, sans
+toucher au reste du schéma. C'est un module additif — sûr à exécuter sur un
+projet déjà en production.
+
+**Important pour ce module** : `SUPABASE_SERVICE_ROLE_KEY` (dans `.env.local`)
+doit être renseignée pour que la création de commande et la page de
+confirmation fonctionnent — c'est elle qui permet au serveur de créer/lire une
+commande de façon sécurisée sans exposer cet accès au navigateur. Vous la
+trouverez dans **Project Settings → API → service_role**.
+
 ### 4. Créer votre compte administrateur
 
 1. Dans **Authentication → Users**, cliquez *Add user* et créez votre compte

@@ -3,9 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Home, Leaf, Info, Mail, MessageCircle, Menu, X } from "lucide-react";
+import { Home, Leaf, Info, Mail, MessageCircle, Menu, X, ShoppingBag } from "lucide-react";
 import { buildWhatsAppLink, generalContactMessage } from "@/lib/whatsapp";
 import type { SiteSettings } from "@/lib/types";
+import CartIndicator from "@/components/site/CartIndicator";
+import { useCart } from "@/lib/cart/CartContext";
 
 const links = [
   { href: "/", label: "Accueil", icon: Home },
@@ -16,6 +18,7 @@ const links = [
 
 export default function Nav({ settings }: { settings: SiteSettings }) {
   const [open, setOpen] = useState(false);
+  const { itemCount } = useCart();
   const waLink = buildWhatsAppLink(settings.whatsapp_number, generalContactMessage());
 
   return (
@@ -44,6 +47,7 @@ export default function Nav({ settings }: { settings: SiteSettings }) {
 
         <div className="flex items-center gap-4">
           <span className="hidden text-xl md:inline">🇹🇳</span>
+          <CartIndicator />
           <a
             href={waLink}
             target="_blank"
@@ -76,6 +80,21 @@ export default function Nav({ settings }: { settings: SiteSettings }) {
                 </Link>
               );
             })}
+            <Link
+              href="/panier"
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-between py-3 text-sm text-white/85"
+            >
+              <span className="flex items-center gap-2.5">
+                <ShoppingBag className="size-4 text-or" />
+                Panier
+              </span>
+              {itemCount > 0 && (
+                <span className="flex size-5 items-center justify-center rounded-full bg-or text-[10px] font-semibold text-black">
+                  {itemCount > 9 ? "9+" : itemCount}
+                </span>
+              )}
+            </Link>
             <a
               href={waLink}
               target="_blank"

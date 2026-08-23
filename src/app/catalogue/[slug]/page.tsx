@@ -8,6 +8,7 @@ import { getSiteSettings } from "@/lib/settings";
 import { formatPrice } from "@/lib/utils";
 import OrderOnWhatsApp from "@/components/site/OrderOnWhatsApp";
 import ProductAccordion from "@/components/site/ProductAccordion";
+import AddToCartButton from "@/components/site/AddToCartButton";
 
 export const revalidate = 120;
 
@@ -107,11 +108,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             </span>
           </div>
 
-          {product.whatsapp_enabled && product.is_available && (
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <OrderOnWhatsApp productName={product.name} whatsappNumber={settings.whatsapp_number} />
-              </div>
+          {product.is_available && (
+            <div className="flex flex-wrap items-center gap-4">
+              <AddToCartButton product={product} />
+              {product.whatsapp_enabled && (
+                <div className="flex-1">
+                  <OrderOnWhatsApp productName={product.name} whatsappNumber={settings.whatsapp_number} />
+                </div>
+              )}
               <button
                 type="button"
                 className="flex size-14 items-center justify-center rounded-full border border-white/25 text-white/70"

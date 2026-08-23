@@ -42,9 +42,8 @@ export async function createClient() {
 }
 
 // Service-role client for privileged server-only operations (e.g. CSV import,
-// storage cleanup). Never import this into client components.
+// storage cleanup, order creation/lookup). Never import this into client components.
 export function createAdminClient() {
-  const { createClient: createSupabaseClient } = require("@supabase/supabase-js");
   return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
