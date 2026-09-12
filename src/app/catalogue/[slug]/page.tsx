@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { ChevronRight, Heart } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { getProductBySlug, getRelatedProducts } from "@/lib/queries";
 import { getSiteSettings } from "@/lib/settings";
 import { formatPrice } from "@/lib/utils";
@@ -116,13 +116,6 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   <OrderOnWhatsApp productName={product.name} whatsappNumber={settings.whatsapp_number} />
                 </div>
               )}
-              <button
-                type="button"
-                className="flex size-14 items-center justify-center rounded-full border border-white/25 text-white/70"
-                aria-label="Ajouter aux favoris"
-              >
-                <Heart className="size-5" />
-              </button>
             </div>
           )}
 

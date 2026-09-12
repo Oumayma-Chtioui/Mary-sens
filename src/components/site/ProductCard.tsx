@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Heart } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
 import AddToCartButton from "@/components/site/AddToCartButton";
@@ -25,9 +24,6 @@ export default function ProductCard({ product }: { product: Product }) {
               Indisponible
             </span>
           )}
-          <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-[#0a0a0a]/80">
-            <Heart className="size-4 text-white/70" />
-          </span>
         </div>
       </Link>
       <div className="flex flex-col gap-1 p-3">

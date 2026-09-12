@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Heart, Leaf, ShieldCheck, Truck } from "lucide-react";
+import { ArrowRight, Leaf, ShieldCheck, Truck } from "lucide-react";
 import { getCategories, getProducts } from "@/lib/queries";
 import { getSiteSettings } from "@/lib/settings";
 import { buildWhatsAppLink, generalContactMessage } from "@/lib/whatsapp";
@@ -124,9 +124,6 @@ export default async function HomePage() {
                           Image à venir
                         </div>
                       )}
-                      <span className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-black/70">
-                        <Heart className="size-4 text-white/70" />
-                      </span>
                     </div>
                     <div className="flex flex-col gap-1 p-3">
                       <h3 className="text-sm font-medium text-white">{p.name}</h3>
