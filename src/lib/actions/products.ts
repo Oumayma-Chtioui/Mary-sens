@@ -96,17 +96,11 @@ export async function togglePublish(productId: string, next: boolean) {
 }
 
 export async function addProductImage(productId: string, formData: FormData) {
-  const supabase = await createClient();
+  const supabase =  await createClient();
   const file = formData.get("file") as File;
   if (!file || file.size === 0) return;
 
-  const safeName = file.name
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // strip accents (é -> e)
-    .replace(/[^a-zA-Z0-9.\-_]/g, "-") // replace anything else (apostrophes, spaces...) with "-"
-    .replace(/-+/g, "-");
-
-  const path = `products/${productId}/${Date.now()}-${safeName}`;
+  const path = `products/${productId}/${Date.now()}-${file.name}`;
   const { error: uploadError } = await supabase.storage
     .from("marysens-media")
     .upload(path, file, { upsert: false });

@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { Mail, Phone, Heart, Send, Instagram, Facebook } from "lucide-react";
+import { Mail, Phone, Heart, Send, PackageSearch } from "lucide-react";
+import { FaInstagram, FaFacebookF, FaTiktok } from "react-icons/fa";
 import type { SiteSettings } from "@/lib/types";
 
 export default function Footer({ settings }: { settings: SiteSettings }) {
   const socials = [
-    { label: "Instagram", href: settings.instagram_url, Icon: Instagram },
-    { label: "Facebook", href: settings.facebook_url, Icon: Facebook },
+    { label: "Instagram", href: settings.instagram_url, Icon: FaInstagram },
+    { label: "Facebook", href: settings.facebook_url, Icon: FaFacebookF },
+    { label: "TikTok", href: settings.tiktok_url, Icon: FaTiktok },
   ].filter((s) => s.href);
 
   return (
@@ -28,6 +30,10 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
               {settings.phone}
             </a>
           )}
+          <Link href="/suivre-commande" className="flex items-center gap-2 text-sm text-white/55 hover:text-or">
+            <PackageSearch className="size-4 text-or" />
+            Suivre ma commande
+          </Link>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -46,13 +52,7 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
                 <Icon className="size-5" />
               </a>
             ))}
-            <a
-              href="/admin"
-              aria-label="Espace administration"
-              className="flex size-10 items-center justify-center rounded-full border border-white/15 text-white hover:border-or hover:text-or"
-            >
-              <Send className="size-5" />
-            </a>
+            
           </div>
         </div>
       </div>

@@ -22,7 +22,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
-  // Load once on mount (client-only — localStorage isn't available during SSR).
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -33,7 +32,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setHydrated(true);
   }, []);
 
-  // Persist on every change, once the initial load has happened.
   useEffect(() => {
     if (!hydrated) return;
     try {

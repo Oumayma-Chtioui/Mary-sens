@@ -25,8 +25,7 @@ export async function createClient() {
           try {
             cookieStore.set({ name, value, ...options });
           } catch {
-            // Called from a Server Component with no mutable cookies — safe to ignore,
-            // the middleware refreshes the session on navigation.
+            // Called from a Server Component with no mutable cookies — safe to ignore.
           }
         },
         remove(name: string, options: any) {

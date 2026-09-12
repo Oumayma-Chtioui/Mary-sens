@@ -1,10 +1,6 @@
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import type { Category, Location, Product } from "@/lib/types";
 
-// Every function below fails soft to an empty array/null when Supabase
-// isn't connected yet, so the public site still renders (with proper
-// empty states) before the client's database is wired up.
-
 export async function getCategories(): Promise<Category[]> {
   if (!isSupabaseConfigured()) return [];
   const supabase = await createClient();

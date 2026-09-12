@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Mail, Phone, Instagram, Facebook } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
+import { FaFacebook, FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { getSiteSettings } from "@/lib/settings";
 import ContactForm from "@/components/site/ContactForm";
 
@@ -9,8 +10,8 @@ export const revalidate = 300;
 export default async function ContactPage() {
   const settings = await getSiteSettings();
   const socials = [
-    { label: "Instagram", href: settings.instagram_url, Icon: Instagram },
-    { label: "Facebook", href: settings.facebook_url, Icon: Facebook },
+    { label: "Instagram", href: settings.instagram_url, Icon: FaInstagram },
+    { label: "Facebook", href: settings.facebook_url, Icon: FaFacebook },
   ].filter((s) => s.href);
 
   return (

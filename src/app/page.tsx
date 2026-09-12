@@ -15,7 +15,6 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* HERO */}
       <section className="relative h-[430px] w-full overflow-hidden md:h-[520px]">
         <Image
           src={settings.hero_image}
@@ -41,22 +40,23 @@ export default async function HomePage() {
               href="/catalogue"
               className="flex h-11 items-center gap-2 rounded-full bg-or px-8 font-medium text-black transition-opacity hover:opacity-90"
             >
-              {settings.hero_cta_primary}
+              Découvrir la Collection
               <ArrowRight className="size-4" />
             </Link>
-            <a
-              href={waLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-11 items-center rounded-full border border-white/60 px-6 text-white transition-colors hover:bg-white/10"
-            >
-              {settings.hero_cta_secondary}
-            </a>
+            {settings.whatsapp_enabled && (
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-11 items-center rounded-full border border-white/60 px-6 text-white transition-colors hover:bg-white/10"
+              >
+                Commander sur WhatsApp
+              </a>
+            )}
           </div>
         </div>
       </section>
 
-      {/* CATEGORIES */}
       <section className="bg-black px-6 py-12 md:px-12">
         <div className="mb-8 flex items-end justify-between">
           <div className="flex flex-col gap-2">
@@ -95,7 +95,6 @@ export default async function HomePage() {
           </div>
         )}
 
-        {/* FEATURED PRODUCTS */}
         {featured.length > 0 && (
           <div className="mt-14">
             <div className="mb-8 flex items-end justify-between">
@@ -143,7 +142,6 @@ export default async function HomePage() {
           </div>
         )}
 
-        {/* TRUST ROW */}
         <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
           <TrustItem icon={Leaf} title="100% Bio & Naturel" desc="Sans additifs ni conservateurs" />
           <TrustItem icon={Truck} title="Livraison Tunisie" desc="Partout en 48h" />

@@ -77,8 +77,6 @@ export const ORDER_STATUSES: OrderStatus[] = [
   "Annulée",
 ];
 
-// A line in the client-side cart, kept intentionally minimal — the server
-// re-fetches trusted product data at order time rather than relying on this.
 export type CartItem = {
   productId: string;
   slug: string;
@@ -115,30 +113,18 @@ export type Order = {
   items?: OrderItem[];
 };
 
-export type ContactMessage = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  subject: string | null;
-  message: string;
-  status: "new" | "read" | "handled";
-  created_at: string;
-};
-
 export type SiteSettings = {
   brand_name: string;
   logo_url: string;
   description: string;
   phone: string;
   whatsapp_number: string;
+  whatsapp_enabled: boolean;
   email: string;
   hero_title: string;
   hero_tagline: string;
   hero_description: string;
   hero_image: string;
-  hero_cta_primary: string;
-  hero_cta_secondary: string;
   about_story: string;
   about_mission: string;
   about_values: string;

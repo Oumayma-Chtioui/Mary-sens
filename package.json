@@ -9,25 +9,27 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "15.5.23",
+    "@supabase/ssr": "^0.4.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "lucide-react": "^1.43.0",
+    "next": "14.2.5",
+    "papaparse": "^5.4.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "@supabase/supabase-js": "^2.45.0",
-    "@supabase/ssr": "^0.4.0",
-    "lucide-react": "^0.460.0",
-    "papaparse": "^5.4.1",
+    "react-icons": "^5.7.0",
+    "sharp": "^0.35.4",
     "slugify": "^1.6.6"
   },
   "devDependencies": {
-    "typescript": "^5.5.4",
     "@types/node": "^20.14.0",
+    "@types/papaparse": "^5.3.14",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@types/papaparse": "^5.3.14",
-    "tailwindcss": "^3.4.7",
-    "postcss": "^8.4.40",
     "autoprefixer": "^10.4.19",
     "eslint": "^8.57.0",
-    "eslint-config-next": "15.5.23"
+    "eslint-config-next": "14.2.5",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5.5.4"
   }
 }

@@ -48,15 +48,17 @@ export default function Nav({ settings }: { settings: SiteSettings }) {
         <div className="flex items-center gap-4">
           <span className="hidden text-xl md:inline">🇹🇳</span>
           <CartIndicator />
-          <a
-            href={waLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden size-10 items-center justify-center rounded-full border border-or/50 text-or transition-colors hover:bg-or hover:text-black md:flex"
-            aria-label="Commander sur WhatsApp"
-          >
-            <MessageCircle className="size-4" />
-          </a>
+          {settings.whatsapp_enabled && (
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden size-10 items-center justify-center rounded-full border border-or/50 text-or transition-colors hover:bg-or hover:text-black md:flex"
+              aria-label="Commander sur WhatsApp"
+            >
+              <MessageCircle className="size-4" />
+            </a>
+          )}
           <button className="text-white md:hidden" onClick={() => setOpen((v) => !v)} aria-label="Menu">
             {open ? <X className="size-6" /> : <Menu className="size-6" />}
           </button>
@@ -95,15 +97,17 @@ export default function Nav({ settings }: { settings: SiteSettings }) {
                 </span>
               )}
             </Link>
-            <a
-              href={waLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 flex items-center justify-center gap-2 rounded-full bg-or px-6 py-3 text-sm font-medium text-black"
-            >
-              <MessageCircle className="size-4" />
-              Commander sur WhatsApp
-            </a>
+            {settings.whatsapp_enabled && (
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 flex items-center justify-center gap-2 rounded-full bg-or px-6 py-3 text-sm font-medium text-black"
+              >
+                <MessageCircle className="size-4" />
+                Commander sur WhatsApp
+              </a>
+            )}
           </div>
         </div>
       )}

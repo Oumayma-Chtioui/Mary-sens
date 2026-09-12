@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight, Camera } from "lucide-react";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 import type { Order, OrderStatus } from "@/lib/types";
@@ -53,9 +53,17 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         <h1 className="font-display text-3xl font-semibold text-white md:text-4xl">
           Votre commande a bien été enregistrée
         </h1>
-        <p className="text-sm text-white/55">
-          Référence : <span className="font-medium text-or">{typedOrder.order_number}</span>
-        </p>
+
+        <div className="mt-2 flex flex-col items-center gap-3 rounded-2xl border-2 border-or bg-or/10 px-8 py-5">
+          <span className="text-xs uppercase tracking-[0.2em] text-white/60">Référence de commande</span>
+          <span className="font-display text-3xl font-bold tracking-wide text-or md:text-4xl">
+            {typedOrder.order_number}
+          </span>
+          <span className="flex items-center gap-2 text-xs text-white/60">
+            <Camera className="size-3.5 text-or" />
+            Faites une capture d&apos;écran ou notez cette référence — elle vous sera demandée pour suivre votre commande.
+          </span>
+        </div>
       </div>
 
       <div className="mx-auto mt-10 max-w-2xl rounded-2xl border border-or/30 bg-[#111111] p-6 md:p-8">
@@ -111,7 +119,11 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
 
       <div className="mx-auto mt-8 flex max-w-2xl flex-col items-center gap-3">
         <p className="text-xs text-white/40">
-          Conservez ce lien pour suivre le statut de votre commande à tout moment.
+          Vous pouvez aussi retrouver votre commande à tout moment sur{" "}
+          <Link href="/suivre-commande" className="text-or hover:underline">
+            la page de suivi
+          </Link>{" "}
+          avec votre référence et votre numéro de téléphone.
         </p>
         <Link href="/catalogue" className="flex items-center gap-2 rounded-full bg-or px-8 py-3 font-medium text-black">
           Retour à la boutique

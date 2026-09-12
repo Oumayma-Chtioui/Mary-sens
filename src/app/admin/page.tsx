@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
+import RecentOrdersList from "@/components/admin/RecentOrdersList";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -22,7 +23,7 @@ export default async function AdminDashboard() {
     supabase.from("orders").select("*", { count: "exact", head: true }).eq("status", "Nouvelle"),
     supabase.from("products").select("id,name,created_at").order("created_at", { ascending: false }).limit(5),
     supabase.from("contact_messages").select("id,name,subject,created_at").order("created_at", { ascending: false }).limit(5),
-    supabase.from("orders").select("id,order_number,customer_name,total_amount,created_at").order("created_at", { ascending: false }).limit(5),
+    supabase.from("orders").select("id,order_number,customer_name,total_amount,status,created_at").order("created_at", { ascending: false }).limit(15),
   ]);
 
   const stats = [
@@ -47,23 +48,7 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="border border-border bg-ivoire p-6">
-          <h2 className="mb-4 font-display text-xl">Commandes récentes</h2>
-          {recentOrders.data && recentOrders.data.length > 0 ? (
-            <ul className="divide-y divide-border">
-              {recentOrders.data.map((o) => (
-                <li key={o.id} className="flex items-center justify-between py-3 text-sm">
-                  <Link href={`/admin/commandes/${o.id}`} className="hover:text-or-deep">
-                    {o.order_number} — {o.customer_name}
-                  </Link>
-                  <span className="text-ink/50">{formatPrice(o.total_amount)}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-ink/45">Aucune commande pour le moment.</p>
-          )}
-        </div>
+        <RecentOrdersList orders={recentOrders.data ?? []} />
         <div className="border border-border bg-ivoire p-6">
           <h2 className="mb-4 font-display text-xl">Produits récents</h2>
           {recentProducts.data && recentProducts.data.length > 0 ? (

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils";
 
 export async function createCategory(formData: FormData) {
-  const supabase = await createClient();
+  const supabase =  await createClient();
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "") || null;
 

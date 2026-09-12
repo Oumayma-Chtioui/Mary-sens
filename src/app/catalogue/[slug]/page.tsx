@@ -111,7 +111,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           {product.is_available && (
             <div className="flex flex-wrap items-center gap-4">
               <AddToCartButton product={product} />
-              {product.whatsapp_enabled && (
+              {settings.whatsapp_enabled && product.whatsapp_enabled && (
                 <div className="flex-1">
                   <OrderOnWhatsApp productName={product.name} whatsappNumber={settings.whatsapp_number} />
                 </div>

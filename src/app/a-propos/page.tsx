@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
-import { BadgeCheck, MapPin, Sprout } from "lucide-react";
+import { BadgeCheck, MapPin, Sprout, Target, Heart } from "lucide-react";
 import { getSiteSettings } from "@/lib/settings";
 
 export const metadata: Metadata = { title: "À propos — Mary'sens" };
@@ -30,7 +30,7 @@ export default async function AboutPage() {
         </div>
       </div>
 
-      {/* STORY + VALUES */}
+      {/* STORY + VALUE CARDS */}
       <div className="grid grid-cols-1 gap-10 bg-[#11110f] px-6 py-10 md:grid-cols-[1.5fr_1fr] md:gap-12 md:px-12 md:py-12">
         <div className="flex flex-col gap-4">
           <h2 className="text-2xl font-semibold text-or">La Marque tunisienne de référence</h2>
@@ -43,15 +43,31 @@ export default async function AboutPage() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-3 rounded-lg bg-[#22211e] p-1 font-sans text-xs text-white">
-            <span className="rounded-md bg-white/10 py-2 text-center">Naturel</span>
-            <span className="py-2 text-center text-white/60">Tunisie</span>
-            <span className="py-2 text-center text-white/60">Bio</span>
-          </div>
-
           <ValueCard icon={Sprout} title="100% Naturel" desc="Des ingrédients purs, sans additifs ni produits chimiques." />
           <ValueCard icon={MapPin} title="Fabriqué en Tunisie 🇹🇳" desc="Un savoir-faire artisanal ancré dans notre terroir." />
           <ValueCard icon={BadgeCheck} title="Qualité Certifiée Bio" desc="Une certification biologique garantie à chaque étape." />
+        </div>
+      </div>
+
+      {/* MISSION + VALEURS */}
+      <div className="grid grid-cols-1 gap-10 bg-[#0b0b0a] px-6 py-10 md:grid-cols-2 md:gap-12 md:px-12 md:py-12">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <Target className="size-5 text-or" />
+            <h2 className="text-xl font-semibold text-or">Notre mission</h2>
+          </div>
+          <p className="whitespace-pre-line font-sans text-sm leading-relaxed text-white/80">
+            {settings.about_mission}
+          </p>
+        </div>
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <Heart className="size-5 text-or" />
+            <h2 className="text-xl font-semibold text-or">Nos valeurs</h2>
+          </div>
+          <p className="whitespace-pre-line font-sans text-sm leading-relaxed text-white/80">
+            {settings.about_values}
+          </p>
         </div>
       </div>
 

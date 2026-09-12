@@ -1,8 +1,3 @@
-/**
- * Builds a wa.me link with a pre-filled, French message.
- * `whatsappNumber` must be in international format without "+" or spaces
- * (e.g. "21612345678"), as configured in /admin/parametres.
- */
 export function buildWhatsAppLink(
   whatsappNumber: string,
   message: string

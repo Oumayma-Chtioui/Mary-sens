@@ -5,10 +5,8 @@ import Nav from "@/components/site/Nav";
 import Footer from "@/components/site/Footer";
 import WhatsAppFloat from "@/components/site/WhatsAppFloat";
 import { getSiteSettings } from "@/lib/settings";
-import { CartProvider } from "@/lib/cart/CartContext";
+import { Providers } from "./providers";
 
-// Matches the provided design screens exactly (Flowstep exports use
-// Source Serif 4 for headings, Inter for body/UI).
 const display = Source_Serif_4({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
@@ -45,12 +43,12 @@ export default async function RootLayout({
   return (
     <html lang="fr" className={`${display.variable} ${sans.variable}`}>
       <body className="bg-black font-sans text-white antialiased">
-        <CartProvider>
+        <Providers>
           <Nav settings={settings} />
           {children}
           <Footer settings={settings} />
-          <WhatsAppFloat whatsappNumber={settings.whatsapp_number} />
-        </CartProvider>
+          {settings.whatsapp_enabled && <WhatsAppFloat whatsappNumber={settings.whatsapp_number} />}
+        </Providers>
       </body>
     </html>
   );
