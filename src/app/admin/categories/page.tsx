@@ -2,13 +2,29 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { createCategory, updateCategory, deleteCategory } from "@/lib/actions/categories";
 
-export default async function AdminCategoriesPage() {
+export default async function AdminCategoriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; success?: string }>;
+}) {
   const supabase = await createClient();
   const { data: categories } = await supabase.from("categories").select("*").order("position");
+  const params = await searchParams;
 
   return (
     <div>
       <h1 className="mb-8 font-display text-3xl">Catégories</h1>
+
+      {params.success && (
+        <p className="mb-6 border border-sauge/40 bg-sauge/10 px-4 py-3 text-sm text-sauge">
+          Enregistré avec succès.
+        </p>
+      )}
+      {params.error && (
+        <p className="mb-6 border border-argile/40 bg-argile/10 px-4 py-3 text-sm text-argile">
+          Erreur : {params.error}
+        </p>
+      )}
 
       <div className="mb-10 border border-border bg-ivoire p-6">
         <h2 className="mb-4 text-sm font-medium uppercase tracking-[0.08em] text-ink/60">Nouvelle catégorie</h2>
