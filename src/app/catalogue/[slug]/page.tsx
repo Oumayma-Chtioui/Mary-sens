@@ -9,6 +9,7 @@ import { formatPrice } from "@/lib/utils";
 import OrderOnWhatsApp from "@/components/site/OrderOnWhatsApp";
 import ProductAccordion from "@/components/site/ProductAccordion";
 import AddToCartButton from "@/components/site/AddToCartButton";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 120;
 
@@ -20,13 +21,17 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return {};
+  const description = product.short_description ?? product.full_description ?? `${product.name} de Mary'sens.`;
+  const image = product.images?.find((item) => item.is_primary)?.url ?? product.images?.[0]?.url;
   return {
     title: `${product.name} — Mary'sens`,
-    description: product.short_description ?? undefined,
+    description,
+    alternates: { canonical: `/catalogue/${product.slug}` },
     openGraph: {
       title: `${product.name} — Mary'sens`,
-      description: product.short_description ?? undefined,
-      images: product.images?.[0]?.url ? [product.images[0].url] : undefined,
+      description,
+      url: `/catalogue/${product.slug}`,
+      images: image ? [{ url: image, alt: product.name }] : undefined,
     },
   };
 }
@@ -53,8 +58,36 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     { title: "Précautions", content: product.precautions },
   ].filter((s): s is { title: string; content: string } => Boolean(s.content));
 
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.short_description ?? product.full_description ?? undefined,
+    url: `${SITE_URL}/catalogue/${product.slug}`,
+    image: gallery.map((image) => image.url),
+    brand: { "@type": "Brand", name: "Mary'sens" },
+    category: product.category?.name,
+    sku: product.sku ?? undefined,
+    offers:
+      product.price_visible && product.price != null
+        ? {
+            "@type": "Offer",
+            priceCurrency: "TND",
+            price: product.price,
+            availability: product.is_available
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+            url: `${SITE_URL}/catalogue/${product.slug}`,
+          }
+        : undefined,
+  };
+
   return (
     <div className="min-h-screen bg-black px-6 py-5 md:px-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
       <div className="mb-5 flex items-center gap-2 text-xs text-white/50">
         <Link href="/">Accueil</Link>
         <ChevronRight className="size-3" />

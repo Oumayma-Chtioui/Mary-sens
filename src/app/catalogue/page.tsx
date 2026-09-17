@@ -7,7 +7,14 @@ import { cx } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Boutique — Mary'sens",
-  description: "Huiles essentielles, huiles végétales, soins et bien-être Mary'sens.",
+  description:
+    "Achetez les huiles essentielles, huiles végétales et soins naturels Mary'sens, fabriqués en Tunisie.",
+  alternates: { canonical: "/catalogue" },
+  openGraph: {
+    title: "Boutique de soins naturels — Mary'sens",
+    description: "Huiles essentielles, huiles végétales et soins naturels Mary'sens.",
+    url: "/catalogue",
+  },
 };
 
 export const revalidate = 120;

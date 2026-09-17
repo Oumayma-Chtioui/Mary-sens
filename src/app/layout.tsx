@@ -6,6 +6,7 @@ import Footer from "@/components/site/Footer";
 import WhatsAppFloat from "@/components/site/WhatsAppFloat";
 import { getSiteSettings } from "@/lib/settings";
 import { Providers } from "./providers";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 const display = Source_Serif_4({
   subsets: ["latin"],
@@ -20,16 +21,37 @@ const sans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Mary'sens — Soin & bien-être naturel",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Mary'sens — Soins naturels tunisiens",
+    template: "%s | Mary'sens",
+  },
   description:
-    "Mary'sens, la marque tunisienne de référence des huiles essentielles et végétales 100% pures et bio.",
-  metadataBase: new URL("https://www.marysens.tn"),
+    "Découvrez les huiles essentielles, huiles végétales et soins naturels Mary'sens, fabriqués en Tunisie.",
+  keywords: [
+    "huiles essentielles Tunisie",
+    "huiles végétales Tunisie",
+    "cosmétiques naturels Tunisie",
+    "soins bio",
+    "Mary'sens",
+  ],
+  alternates: { canonical: "/" },
+  robots: { index: true, follow: true },
   openGraph: {
-    title: "Mary'sens — Soin & bien-être naturel",
+    title: "Mary'sens — Soins naturels tunisiens",
     description:
-      "Huiles essentielles et végétales 100% pures et bio, pensées et fabriquées en Tunisie.",
+      "Huiles essentielles, huiles végétales et soins naturels fabriqués en Tunisie.",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    images: [{ url: "/images/rollon.png", width: 1200, height: 1200, alt: "Produits naturels Mary'sens" }],
     locale: "fr_TN",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mary'sens — Soins naturels tunisiens",
+    description: "Huiles essentielles, huiles végétales et soins naturels fabriqués en Tunisie.",
+    images: ["/images/rollon.png"],
   },
 };
 
@@ -43,6 +65,29 @@ export default async function RootLayout({
   return (
     <html lang="fr" className={`${display.variable} ${sans.variable}`}>
       <body className="bg-black font-sans text-white antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  name: SITE_NAME,
+                  url: SITE_URL,
+                  logo: `${SITE_URL}/images/logo.png`,
+                  address: { "@type": "PostalAddress", addressCountry: "TN" },
+                },
+                {
+                  "@type": "WebSite",
+                  name: SITE_NAME,
+                  url: SITE_URL,
+                  inLanguage: "fr-TN",
+                },
+              ],
+            }),
+          }}
+        />
         <Providers>
           <Nav settings={settings} />
           {children}
