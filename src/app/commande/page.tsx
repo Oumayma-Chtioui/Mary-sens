@@ -39,7 +39,8 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customer_name: formData.get("customer_name"),
+          customer_first_name: formData.get("customer_first_name"),
+          customer_last_name: formData.get("customer_last_name"),
           customer_phone: formData.get("customer_phone"),
           customer_email: formData.get("customer_email") || null,
           customer_address: formData.get("customer_address"),
@@ -74,7 +75,10 @@ export default function CheckoutPage() {
 
       <div className="mx-auto grid max-w-4xl grid-cols-1 gap-10 md:grid-cols-[1.1fr_1fr]">
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <Field label="Nom complet" name="customer_name" placeholder="Votre nom et prénom" required />
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <Field label="Prénom" name="customer_first_name" placeholder="Votre prénom" required />
+            <Field label="Nom" name="customer_last_name" placeholder="Votre nom" required />
+          </div>
           <Field label="Téléphone" name="customer_phone" type="tel" placeholder="XX XXX XXX" required />
           <Field label="Email (optionnel)" name="customer_email" type="email" placeholder="votre@email.com" />
           <Field label="Adresse" name="customer_address" placeholder="Rue, numéro, quartier..." required />
