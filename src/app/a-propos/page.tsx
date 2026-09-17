@@ -7,10 +7,10 @@ export const metadata: Metadata = { title: "À propos — Mary'sens" };
 export const revalidate = 300;
 
 const ingredientStrip = [
-  { src: "/images/amande.png", alt: "Huile d'Amande Douce" },
-  { src: "/images/rollon.png", alt: "Roll-on Anti-Âge" },
-  { src: "/images/serum.png", alt: "Sérum Hydratant Concentré" },
-  { src: "/images/deodorant.png", alt: "Déodorant Naturel" },
+  { src: "/images/image1.png", alt: "Overview Image1" },
+  { src: "/images/image3.png", alt: "Overview Image3" },
+  { src: "/images/image2.png", alt: "Overview Image2" },
+  { src: "/images/image4.png", alt: "Overview Image4" },
 ];
 
 export default async function AboutPage() {
@@ -21,7 +21,7 @@ export default async function AboutPage() {
     <div className="min-h-screen bg-[#0b0b0a] font-display">
       {/* HERO BANNER */}
       <div className="relative h-64 w-full overflow-hidden md:h-72">
-        <Image src="/images/rollon.png" alt={settings.brand_name} fill className="object-cover opacity-40" />
+        <Image src="/images/banner.png" alt={settings.brand_name} fill className="object-cover opacity-40" />
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6">
           <span className="text-xs uppercase tracking-[0.28em] text-or">{settings.brand_name}</span>
