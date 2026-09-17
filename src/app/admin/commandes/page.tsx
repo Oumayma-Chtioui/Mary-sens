@@ -19,19 +19,27 @@ export default async function AdminOrdersPage({
 }) {
   const params = await searchParams;
   const supabase = await createClient();
+  // PostgREST treats commas, parentheses and quotes as filter syntax inside
+  // .or(), so strip them rather than interpolating raw user input.
+  const rawSearch = (params.q ?? "").slice(0, 100);
+  const safeSearch = rawSearch.replace(/[,()*:"'\\%]/g, "").trim();
 
   let query = supabase
     .from("orders")
     .select("id, order_number, customer_name, customer_phone, total_amount, status, created_at, items:order_items(id)");
 
-  if (params.status) query = query.eq("status", params.status);
-  if (params.q) {
+  // Only accept a status that's actually one of ours.
+  if (params.status && (ORDER_STATUSES as string[]).includes(params.status)) {
+    query = query.eq("status", params.status);
+  }
+
+  if (safeSearch) {
     query = query.or(
-      `order_number.ilike.%${params.q}%,customer_name.ilike.%${params.q}%,customer_phone.ilike.%${params.q}%`
+      `order_number.ilike.%${safeSearch}%,customer_name.ilike.%${safeSearch}%,customer_phone.ilike.%${safeSearch}%`
     );
   }
   query = query.order("created_at", { ascending: params.sort === "asc" });
-
+  
   const { data: orders } = await query;
 
   return (

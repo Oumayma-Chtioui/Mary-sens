@@ -24,10 +24,22 @@ export default function Nav({ settings }: { settings: SiteSettings }) {
   return (
     <header className="border-b border-white/10 bg-black">
       <nav className="mx-auto flex h-20 max-w-[1400px] items-center justify-between px-6 md:px-12">
-        <Link href="/" className="flex items-baseline gap-1.5">
-          <Image src={settings.logo_url} alt={settings.brand_name} width={26} height={26} className="mb-0.5 h-6 w-auto" />
-          <span className="font-display text-2xl font-semibold tracking-wide text-or">{settings.brand_name}</span>
-        </Link>
+        <Link href="/" className="flex items-center gap-3 h-full py-1">
+        <div className="relative h-20 w-20 shrink-0">
+          <Image 
+            src={settings.logo_url} 
+            alt={settings.brand_name} 
+            fill 
+            priority
+            unoptimized
+            className="object-contain" 
+          />
+        </div>   
+        {/* <span className="font-display text-2xl font-semibold tracking-wide text-or select-none">
+          {settings.brand_name}
+        </span> */}
+      </Link>
+
 
         <div className="hidden items-center gap-8 md:flex">
           {links.map((l) => {

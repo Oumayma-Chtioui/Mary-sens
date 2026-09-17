@@ -1,14 +1,26 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 async function login(formData: FormData) {
   "use server";
   const email = String(formData.get("email"));
   const password = String(formData.get("password"));
+
+  const headerList = await headers();
+  const ip = headerList.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+
+  // 5 attempts per IP per 15 minutes.
+  const { allowed } = await checkRateLimit(`login:${ip}`, 5, 15 * 60);
+  if (!allowed) {
+    redirect("/admin/login?error=rate");
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
-    redirect(`/admin/login?error=${encodeURIComponent(error.message)}`);
+    redirect("/admin/login?error=1");
   }
   redirect("/admin");
 }
@@ -42,7 +54,9 @@ export default async function LoginPage({
 
         {params.error && (
           <p className="mb-5 border border-argile/40 bg-argile/10 px-4 py-3 text-sm text-argile">
-            Identifiants incorrects. Réessayez.
+            {params.error === "rate"
+              ? "Trop de tentatives. Réessayez dans 15 minutes."
+              : "Identifiants incorrects. Réessayez."}
           </p>
         )}
 

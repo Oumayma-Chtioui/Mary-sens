@@ -6,5 +6,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  // Broad matcher so the secret gate path is caught too. Static assets excluded.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|images/).*)"],
 };

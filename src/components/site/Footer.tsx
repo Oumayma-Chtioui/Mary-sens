@@ -61,9 +61,7 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
 
       <div className="mx-auto mt-4 flex max-w-[1400px] items-center justify-between text-xs text-white/45">
         <span>© {new Date().getFullYear()} {settings.brand_name}. Tous droits réservés.</span>
-        <span className="flex items-center gap-2">
-          Fait avec <Heart className="size-3 fill-or text-or" /> en Tunisie 🇹🇳
-        </span>
+        
       </div>
     </footer>
   );
