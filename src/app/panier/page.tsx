@@ -70,23 +70,9 @@ export default function CartPage() {
             </div>
 
             <div className="flex items-center rounded-full border border-white/20">
-              <button
-                type="button"
-                onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                className="flex size-8 items-center justify-center text-or"
-                aria-label="Diminuer la quantité"
-              >
-                <Minus className="size-3.5" />
-              </button>
+              
               <span className="w-8 text-center text-sm text-white">{item.quantity}</span>
-              <button
-                type="button"
-                onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                className="flex size-8 items-center justify-center text-or"
-                aria-label="Augmenter la quantité"
-              >
-                <Plus className="size-3.5" />
-              </button>
+              
             </div>
 
             <div className="hidden w-20 shrink-0 text-right text-sm font-semibold text-or sm:block">
