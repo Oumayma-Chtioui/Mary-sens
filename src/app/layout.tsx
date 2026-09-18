@@ -22,6 +22,11 @@ const sans = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  icons: {
+    icon: "/images/logo11.png",
+    shortcut: "/images/logo11.png",
+    apple: "/images/logo11.png",
+  },
   title: {
     default: "Mary'sens — Soins naturels tunisiens",
     template: "%s | Mary'sens",
