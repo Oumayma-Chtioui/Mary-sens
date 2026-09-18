@@ -23,9 +23,9 @@ const sans = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   icons: {
-    icon: "/images/logo11.png",
-    shortcut: "/images/logo11.png",
-    apple: "/images/logo11.png",
+    icon: [{ url: "/images/favicon.png", type: "image/png", sizes: "512x512" }],
+    shortcut: "/images/favicon.png",
+    apple: [{ url: "/images/favicon.png", sizes: "512x512", type: "image/png" }],
   },
   title: {
     default: "Mary'sens — Soins naturels tunisiens",
