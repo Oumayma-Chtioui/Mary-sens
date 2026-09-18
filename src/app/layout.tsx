@@ -8,6 +8,7 @@ import { getSiteSettings } from "@/lib/settings";
 import { Providers } from "./providers";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const display = Source_Serif_4({
   subsets: ["latin"],
@@ -102,6 +103,7 @@ export default async function RootLayout({
         </Providers>
       </body>
       <Analytics />
+      <SpeedInsights />
     </html>
   );
 }
