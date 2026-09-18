@@ -7,6 +7,7 @@ import WhatsAppFloat from "@/components/site/WhatsAppFloat";
 import { getSiteSettings } from "@/lib/settings";
 import { Providers } from "./providers";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { Analytics } from "@vercel/analytics/next"
 
 const display = Source_Serif_4({
   subsets: ["latin"],
@@ -100,6 +101,7 @@ export default async function RootLayout({
           {settings.whatsapp_enabled && <WhatsAppFloat whatsappNumber={settings.whatsapp_number} />}
         </Providers>
       </body>
+      <Analytics />
     </html>
   );
 }
