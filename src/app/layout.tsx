@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/images/favicon.png", sizes: "512x512", type: "image/png" }],
   },
   title: {
-    default: "Mary'sens — Soins naturels tunisiens",
+    default: "Mary'sens — La marque tunisienne de référence des huiles essentielles et végétales",
     template: "%s | Mary'sens",
   },
   description:
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   robots: { index: true, follow: true },
   openGraph: {
-    title: "Mary'sens — Soins naturels tunisiens",
+    title: "Mary'sens — La marque tunisienne de référence des huiles essentielles et végétales",
     description:
       "Huiles essentielles, huiles végétales et soins naturels fabriqués en Tunisie.",
     url: SITE_URL,
