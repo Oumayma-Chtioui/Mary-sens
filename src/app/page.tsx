@@ -72,19 +72,19 @@ export default async function HomePage() {
               <Link
                 key={c.id}
                 href={`/catalogue?categorie=${c.slug}`}
-                className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-[#0a0a0a] p-4"
+                className="flex flex-col items-center gap-4 rounded-lg border border-[#e7dfd0] bg-[#f7f4ec] p-4"
               >
-                <div className="relative size-28 overflow-hidden rounded-full border-2 border-white/10 md:size-32">
+                <div className="relative size-28 overflow-hidden rounded-full border-2 border-black/10 md:size-32">
                   {c.image_url ? (
                     <Image src={c.image_url} alt={c.name} fill className="object-cover" />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-or/10">
-                      <Leaf className="size-8 text-or" />
+                      <Leaf className="size-8 text-or-deep" />
                     </div>
                   )}
                 </div>
                 <div className="flex flex-col items-center gap-1 text-center">
-                  <span className="text-sm font-medium text-white">{c.name}</span>
+                  <span className="text-sm font-medium text-ink">{c.name}</span>
                 </div>
               </Link>
             ))}
@@ -114,22 +114,22 @@ export default async function HomePage() {
                   <Link
                     key={p.id}
                     href={`/catalogue/${p.slug}`}
-                    className="overflow-hidden rounded-lg border border-white/10 bg-[#0a0a0a]"
+                    className="overflow-hidden rounded-lg border border-[#e7dfd0] bg-[#f7f4ec]"
                   >
-                    <div className="relative h-36 bg-white/5">
+                    <div className="relative h-36 bg-black/5">
                       {image ? (
                         <Image src={image} alt={p.name} fill className="object-cover" />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-white/30">
+                        <div className="flex h-full items-center justify-center text-xs text-ink/30">
                           Image à venir
                         </div>
                       )}
                     </div>
                     <div className="flex flex-col gap-1 p-3">
-                      <h3 className="text-sm font-medium text-white">{p.name}</h3>
-                      <p className="text-xs text-white/45">100% Pure et Bio</p>
+                      <h3 className="text-sm font-medium text-ink">{p.name}</h3>
+                      <p className="text-xs text-ink/55">100% Pure et Bio</p>
                       {p.price_visible && p.price != null && (
-                        <span className="pt-1 font-semibold text-or">{p.price.toFixed(2)} DT</span>
+                        <span className="pt-1 font-semibold text-ink">{p.price.toFixed(2)} DT</span>
                       )}
                     </div>
                   </Link>

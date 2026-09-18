@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Mail, Phone } from "lucide-react";
-import { FaFacebook, FaInstagram, FaWhatsapp } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaWhatsapp, FaTiktok } from "react-icons/fa";
 import { getSiteSettings } from "@/lib/settings";
 import ContactForm from "@/components/site/ContactForm";
 
@@ -12,6 +12,7 @@ export default async function ContactPage() {
   const socials = [
     { label: "Instagram", href: settings.instagram_url, Icon: FaInstagram },
     { label: "Facebook", href: settings.facebook_url, Icon: FaFacebook },
+    { label: "TikTok", href: settings.tiktok_url, Icon: FaTiktok },
   ].filter((s) => s.href);
 
   return (
@@ -33,6 +34,13 @@ export default async function ContactPage() {
           {settings.phone && settings.phone !== "À compléter" && (
             <>
               <InfoRow icon={Phone} label="Téléphone" value={settings.phone} href={`tel:${settings.phone}`} />
+              <div className="h-px w-full bg-or/30" />
+            </>
+          )}
+
+          {settings.whatsapp_number && settings.whatsapp_number !== "À compléter" && (
+            <>
+              <InfoRow icon={Phone} label="WhatsApp" value={settings.whatsapp_number} href={`https://wa.me/${settings.whatsapp_number}`} />
               <div className="h-px w-full bg-or/30" />
             </>
           )}

@@ -9,13 +9,13 @@ export default function ProductCard({ product }: { product: Product }) {
     product.images?.find((i) => i.is_primary)?.url ?? product.images?.[0]?.url;
 
   return (
-    <div className="overflow-hidden rounded-lg border border-white/10 bg-[#171717]">
+    <div className="overflow-hidden rounded-lg border border-[#e7dfd0] bg-[#f7f4ec]">
       <Link href={`/catalogue/${product.slug}`} className="block">
-        <div className="relative h-36 bg-white/5">
+        <div className="relative h-36 bg-black/5">
           {primaryImage ? (
             <Image src={primaryImage} alt={product.name} fill className="object-cover" />
           ) : (
-            <div className="flex h-full items-center justify-center text-xs text-white/30">
+            <div className="flex h-full items-center justify-center text-xs text-ink/30">
               Image à venir
             </div>
           )}
@@ -28,14 +28,14 @@ export default function ProductCard({ product }: { product: Product }) {
       </Link>
       <div className="flex flex-col gap-1 p-3">
         <Link href={`/catalogue/${product.slug}`}>
-          <h3 className="text-sm font-medium text-white hover:text-or">{product.name}</h3>
+          <h3 className="text-sm font-medium text-ink hover:text-or-deep">{product.name}</h3>
         </Link>
-        <p className="text-xs text-white/45">{product.category?.name ?? "100% Pure et Bio"}</p>
+        <p className="text-xs text-ink/55">{product.category?.name ?? "100% Pure et Bio"}</p>
         <div className="flex items-center justify-between pt-2">
           {product.price_visible && product.price != null ? (
-            <span className="font-semibold text-or">{formatPrice(product.price)}</span>
+            <span className="font-semibold text-ink">{formatPrice(product.price)}</span>
           ) : (
-            <span className="text-[11px] uppercase tracking-[0.06em] text-white/40">Sur demande</span>
+            <span className="text-[11px] uppercase tracking-[0.06em] text-ink/40">Sur demande</span>
           )}
           {product.is_available ? (
             <AddToCartButton product={product} size="compact" />

@@ -9,7 +9,6 @@ import { formatPrice } from "@/lib/utils";
 import OrderOnWhatsApp from "@/components/site/OrderOnWhatsApp";
 import ProductAccordion from "@/components/site/ProductAccordion";
 import AddToCartButton from "@/components/site/AddToCartButton";
-import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 120;
 
@@ -21,17 +20,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) return {};
-  const description = product.short_description ?? product.full_description ?? `${product.name} de Mary'sens.`;
-  const image = product.images?.find((item) => item.is_primary)?.url ?? product.images?.[0]?.url;
   return {
     title: `${product.name} — Mary'sens`,
-    description,
-    alternates: { canonical: `/catalogue/${product.slug}` },
+    description: product.short_description ?? undefined,
     openGraph: {
       title: `${product.name} — Mary'sens`,
-      description,
-      url: `/catalogue/${product.slug}`,
-      images: image ? [{ url: image, alt: product.name }] : undefined,
+      description: product.short_description ?? undefined,
+      images: product.images?.[0]?.url ? [product.images[0].url] : undefined,
     },
   };
 }
@@ -58,36 +53,8 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     { title: "Précautions", content: product.precautions },
   ].filter((s): s is { title: string; content: string } => Boolean(s.content));
 
-  const productSchema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.short_description ?? product.full_description ?? undefined,
-    url: `${SITE_URL}/catalogue/${product.slug}`,
-    image: gallery.map((image) => image.url),
-    brand: { "@type": "Brand", name: "Mary'sens" },
-    category: product.category?.name,
-    sku: product.sku ?? undefined,
-    offers:
-      product.price_visible && product.price != null
-        ? {
-            "@type": "Offer",
-            priceCurrency: "TND",
-            price: product.price,
-            availability: product.is_available
-              ? "https://schema.org/InStock"
-              : "https://schema.org/OutOfStock",
-            url: `${SITE_URL}/catalogue/${product.slug}`,
-          }
-        : undefined,
-  };
-
   return (
     <div className="min-h-screen bg-black px-6 py-5 md:px-12">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
-      />
       <div className="mb-5 flex items-center gap-2 text-xs text-white/50">
         <Link href="/">Accueil</Link>
         <ChevronRight className="size-3" />
@@ -182,22 +149,22 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 <Link
                   key={p.id}
                   href={`/catalogue/${p.slug}`}
-                  className="rounded-2xl border border-white/15 bg-[#0a0a0a] p-3"
+                  className="rounded-lg border border-[#e7dfd0] bg-[#f7f4ec] p-3"
                 >
-                  <div className="relative aspect-square overflow-hidden rounded-xl bg-white/5">
+                  <div className="relative aspect-square overflow-hidden rounded-lg bg-black/5">
                     {img ? (
                       <Image src={img} alt={p.name} fill className="object-cover" />
                     ) : (
-                      <div className="flex h-full items-center justify-center text-xs text-white/30">
+                      <div className="flex h-full items-center justify-center text-xs text-ink/30">
                         Image à venir
                       </div>
                     )}
                   </div>
                   <div className="flex flex-col gap-1 p-1 pt-3">
-                    <h3 className="font-display text-sm font-semibold text-white">{p.name}</h3>
-                    <p className="text-xs text-white/50">100% Pure et Bio</p>
+                    <h3 className="font-display text-sm font-semibold text-ink">{p.name}</h3>
+                    <p className="text-xs text-ink/55">100% Pure et Bio</p>
                     {p.price_visible && p.price != null && (
-                      <span className="text-base font-bold text-or">{formatPrice(p.price)}</span>
+                      <span className="text-base font-bold text-ink">{formatPrice(p.price)}</span>
                     )}
                   </div>
                 </Link>

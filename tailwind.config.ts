@@ -17,19 +17,17 @@ const config: Config = {
           DEFAULT: "#F8F4EC",
           2: "#F1EADC",
         },
+        "card-ivory": "#F7F4EC",
         sauge: "#707C5E",
         argile: "#A9432E",
         border: "rgba(33,29,23,0.12)",
-        // Public-site palette, matched exactly to the provided design screens.
         panel: "#0b0b0a",
         "panel-2": "#11110f",
         card: "#171717",
         "card-border": "rgba(255,255,255,0.1)",
       },
       fontFamily: {
-        // Matches the provided design screens: Source Serif 4 for headings.
         display: ["var(--font-display)", "serif"],
-        // Body / UI, matches the provided screens (Inter).
         sans: ["var(--font-sans)", "sans-serif"],
       },
       letterSpacing: {
