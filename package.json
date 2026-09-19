@@ -15,7 +15,7 @@
     "@vercel/speed-insights": "^2.0.0",
     "jszip": "^3.10.2",
     "lucide-react": "^1.43.0",
-    "next": "15.5.2",
+    "next": "15.5.23",
     "papaparse": "^5.4.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -23,7 +23,6 @@
     "slugify": "^1.6.6"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1.13.16",
     "@types/node": "^20.14.0",
     "@types/papaparse": "^5.3.14",
     "@types/react": "^18.3.3",
