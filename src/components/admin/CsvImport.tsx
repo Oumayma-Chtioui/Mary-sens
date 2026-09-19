@@ -34,11 +34,7 @@ export default function CsvImport() {
 
   async function handleImport() {
     setImporting(true);
-    const formData = new FormData();
-    formData.set("rows", JSON.stringify(rows));
-    if (zipFile) formData.set("zip", zipFile, zipFile.name);
-
-    const res = await importProducts(formData);
+    const res = await importProducts(rows, zipFile);
     setResult(res);
     setImporting(false);
   }
