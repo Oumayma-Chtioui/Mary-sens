@@ -8,7 +8,8 @@
     "global_fetch_strictly_public"
   ],
   "assets": {
-    "directory": ".open-next/build/assets", // Add "/build" right here
+    "directory": ".open-next/assets",
     "binding": "ASSETS"
-  }
+  },
+  
 }
