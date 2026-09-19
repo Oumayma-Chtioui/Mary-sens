@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Source_Serif_4, Inter } from "next/font/google";
 import "./globals.css";
-import Nav from "@/components/site/Nav";
+import Nav from "@/components/site/Nav"; 
 import Footer from "@/components/site/Footer";
 import WhatsAppFloat from "@/components/site/WhatsAppFloat";
 import { getSiteSettings } from "@/lib/settings";
