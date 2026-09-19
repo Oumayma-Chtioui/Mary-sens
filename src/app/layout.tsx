@@ -10,6 +10,9 @@ import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
+export const runtime = 'edge';
+
+
 const display = Source_Serif_4({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
