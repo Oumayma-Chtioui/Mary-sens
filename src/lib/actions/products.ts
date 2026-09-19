@@ -95,15 +95,23 @@ export async function togglePublish(productId: string, next: boolean) {
   revalidatePath("/catalogue");
 }
 
+function safeExtension(filename: string) {
+  const match = filename.match(/\.([a-zA-Z0-9]+)$/);
+  const ext = match ? match[1].toLowerCase() : "jpg";
+  return /^(jpg|jpeg|png|webp|gif)$/.test(ext) ? ext : "jpg";
+}
+
 export async function addProductImage(productId: string, formData: FormData) {
-  const supabase =  await createClient();
+  const supabase = await createClient();
   const file = formData.get("file") as File;
   if (!file || file.size === 0) return;
 
-  const path = `products/${productId}/${Date.now()}-${file.name}`;
+  const ext = safeExtension(file.name);
+  const path = `products/${productId}/${Date.now()}.${ext}`;
+
   const { error: uploadError } = await supabase.storage
     .from("marysens-media")
-    .upload(path, file, { upsert: false });
+    .upload(path, file, { contentType: file.type || undefined, upsert: false });
   if (uploadError) throw new Error(uploadError.message);
 
   const { data: publicUrl } = supabase.storage.from("marysens-media").getPublicUrl(path);

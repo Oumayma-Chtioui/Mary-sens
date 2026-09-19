@@ -37,7 +37,7 @@ export default async function AdminSettingsPage({
             <input type="file" name="hero_image_file" accept="image/*" required className="text-sm" />
           </div>
           <p className="text-xs text-ink/45">
-            L&apos;image est automatiquement redimensionnée et compressée à l&apos;envoi.
+            Merci d'utiliser une image déjà de taille raisonnable (idéalement sous 500 Ko, format JPG, PNG ou WebP) — les images ne sont plus compressées automatiquement.
           </p>
           <button type="submit" className="btn btn-dark w-fit">Mettre à jour l&apos;image</button>
         </form>

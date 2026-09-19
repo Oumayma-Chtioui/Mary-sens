@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteSettings } from "@/lib/settings";
-import { optimizeImage } from "@/lib/images";
 import type { SiteSettings } from "@/lib/types";
 
 const TEXT_FIELDS: Array<keyof SiteSettings> = [
@@ -27,8 +26,6 @@ const TEXT_FIELDS: Array<keyof SiteSettings> = [
   "seo_description",
 ];
 
-// Text fields + the WhatsApp toggle. Deliberately does NOT touch the hero
-// image at all, so a failed image upload can never block these from saving.
 export async function updateSettings(formData: FormData) {
   const supabase = await createClient();
   const current = await getSiteSettings();
@@ -55,8 +52,12 @@ export async function updateSettings(formData: FormData) {
   redirect("/admin/parametres?success=1");
 }
 
-// Hero image upload, entirely separate from the form above. A failure here
-// only ever affects this one field, never your other settings.
+function safeExtension(filename: string) {
+  const match = filename.match(/\.([a-zA-Z0-9]+)$/);
+  const ext = match ? match[1].toLowerCase() : "jpg";
+  return /^(jpg|jpeg|png|webp|gif)$/.test(ext) ? ext : "jpg";
+}
+
 export async function updateHeroImage(formData: FormData) {
   const supabase = await createClient();
   const heroFile = formData.get("hero_image_file") as File | null;
@@ -68,13 +69,12 @@ export async function updateHeroImage(formData: FormData) {
   let errorMessage: string | null = null;
 
   try {
-    const buffer = Buffer.from(await heroFile.arrayBuffer());
-    const optimized = await optimizeImage(buffer, { maxWidth: 1920, quality: 82 });
-    const path = `settings/hero-${Date.now()}.webp`;
+    const ext = safeExtension(heroFile.name);
+    const path = `settings/hero-${Date.now()}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from("marysens-media")
-      .upload(path, optimized, { contentType: "image/webp", upsert: false });
+      .upload(path, heroFile, { contentType: heroFile.type || undefined, upsert: false });
     if (uploadError) throw uploadError;
 
     const { data: publicUrl } = supabase.storage.from("marysens-media").getPublicUrl(path);

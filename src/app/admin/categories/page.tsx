@@ -37,7 +37,7 @@ export default async function AdminCategoriesPage({
           <button type="submit" className="btn btn-dark">Ajouter</button>
         </form>
         <p className="mt-2 text-xs text-ink/40">
-          L&apos;image est automatiquement redimensionnée et compressée à l&apos;envoi.
+          Merci d'utiliser une image déjà de taille raisonnable (idéalement sous 500 Ko, format JPG, PNG ou WebP) — les images ne sont plus compressées automatiquement.
         </p>
       </div>
 

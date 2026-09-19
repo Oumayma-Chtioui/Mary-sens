@@ -1,16 +1,23 @@
+export const runtime = 'edge';
+
 import { NextResponse } from "next/server";
-import { randomInt } from "crypto";
 import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-
 type IncomingItem = { productId: string; quantity: number };
 
 // No ambiguous characters (0/O, 1/I) — these get read aloud over the phone.
 const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 function generateOrderNumber() {
+  // Web Crypto API (crypto.getRandomValues) instead of Node's crypto.randomInt
+  // — this global exists in both Cloudflare's edge runtime and modern Node,
+  // unlike the Node-only `crypto` module import above.
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
   let out = "";
-  for (let i = 0; i < 8; i++) out += ALPHABET[randomInt(ALPHABET.length)];
+  for (let i = 0; i < 8; i++) {
+    out += ALPHABET[bytes[i] % ALPHABET.length];
+  }
   return `MS-${out}`;
 }
 

@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils";
-import { optimizeImage } from "@/lib/images";
 import JSZip from "jszip";
 
 export type ImportRow = {
@@ -16,11 +15,8 @@ export type ImportRow = {
   benefits?: string;
   usage?: string;
   precautions?: string;
-  publication?: string;
   availability?: string;
   featured?: string;
-  // Either a filename to look up inside the uploaded ZIP (e.g. "roll-on.jpg"),
-  // or a direct https:// URL — both are supported.
   image?: string;
 };
 
@@ -42,15 +38,29 @@ function normalizeFilename(name: string) {
   return name.split("/").pop()?.trim().toLowerCase() ?? "";
 }
 
+function safeExtension(filename: string) {
+  const match = filename.match(/\.([a-zA-Z0-9]+)$/);
+  const ext = match ? match[1].toLowerCase() : "jpg";
+  return /^(jpg|jpeg|png|webp|gif)$/.test(ext) ? ext : "jpg";
+}
+
+function guessContentType(ext: string) {
+  if (ext === "png") return "image/png";
+  if (ext === "webp") return "image/webp";
+  if (ext === "gif") return "image/gif";
+  return "image/jpeg";
+}
+
 async function fetchImageBuffer(
   imageValue: string,
   imagesByName: Map<string, JSZip.JSZipObject> | null
-): Promise<Buffer | null> {
+): Promise<{ buffer: Buffer; ext: string } | null> {
   if (/^https?:\/\//i.test(imageValue)) {
     try {
       const res = await fetch(imageValue);
       if (!res.ok) return null;
-      return Buffer.from(await res.arrayBuffer());
+      const ext = safeExtension(imageValue.split("?")[0]);
+      return { buffer: Buffer.from(await res.arrayBuffer()), ext };
     } catch {
       return null;
     }
@@ -58,28 +68,10 @@ async function fetchImageBuffer(
 
   const entry = imagesByName?.get(normalizeFilename(imageValue));
   if (!entry) return null;
-  return Buffer.from(await entry.async("arraybuffer"));
+  return { buffer: Buffer.from(await entry.async("arraybuffer")), ext: safeExtension(imageValue) };
 }
 
-export async function importProducts(formData: FormData): Promise<ImportResult> {
-  let rows: ImportRow[];
-  try {
-    const rowsValue = formData.get("rows");
-    rows = JSON.parse(typeof rowsValue === "string" ? rowsValue : "null");
-    if (!Array.isArray(rows)) throw new Error("Les lignes importées sont invalides.");
-  } catch {
-    return {
-      totalDetected: 0,
-      importedCount: 0,
-      errorCount: 1,
-      imagesMatchedCount: 0,
-      imagesMissingCount: 0,
-      errors: [{ row: 0, name: "Import", reason: "Le fichier CSV est invalide." }],
-    };
-  }
-
-  const zipValue = formData.get("zip");
-  const zipFile = zipValue instanceof File ? zipValue : null;
+export async function importProducts(rows: ImportRow[], zipFile?: File | null): Promise<ImportResult> {
   const supabase = await createClient();
 
   const { data: categories } = await supabase.from("categories").select("id,name");
@@ -142,7 +134,7 @@ export async function importProducts(formData: FormData): Promise<ImportResult> 
         precautions: row.precautions?.trim() || null,
         is_available: row.availability ? truthy(row.availability) : true,
         is_featured: truthy(row.featured),
-        is_published: row.publication ? truthy(row.publication) : false,
+        is_published: false,
       })
       .select("id")
       .single();
@@ -156,8 +148,8 @@ export async function importProducts(formData: FormData): Promise<ImportResult> 
     const imageValue = row.image?.trim();
     if (imageValue) {
       try {
-        const buffer = await fetchImageBuffer(imageValue, imagesByName);
-        if (!buffer) {
+        const result = await fetchImageBuffer(imageValue, imagesByName);
+        if (!result) {
           imagesMissingCount++;
           errors.push({
             row: rowNumber,
@@ -167,12 +159,11 @@ export async function importProducts(formData: FormData): Promise<ImportResult> 
               : `Image "${imageValue}" introuvable dans le fichier ZIP.`,
           });
         } else {
-          const optimized = await optimizeImage(buffer, { maxWidth: 1600, quality: 82 });
-          const path = `products/${product.id}/${Date.now()}.webp`;
+          const path = `products/${product.id}/${Date.now()}.${result.ext}`;
 
           const { error: uploadError } = await supabase.storage
             .from("marysens-media")
-            .upload(path, optimized, { contentType: "image/webp", upsert: false });
+            .upload(path, result.buffer, { contentType: guessContentType(result.ext), upsert: false });
 
           if (uploadError) {
             imagesMissingCount++;
