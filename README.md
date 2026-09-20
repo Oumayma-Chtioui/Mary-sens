@@ -101,6 +101,19 @@ Le projet est prêt pour [Vercel](https://vercel.com) (ou tout hébergeur Next.j
 poussez le code sur un repo Git, importez-le sur Vercel, renseignez les mêmes
 variables d'environnement que `.env.local`, et déployez.
 
+Pour déployer sur Cloudflare Workers avec OpenNext, activez d'abord R2 dans le
+tableau de bord Cloudflare, puis créez le bucket de cache utilisé par
+`wrangler.jsonc` :
+
+```bash
+npx wrangler r2 bucket create marysens-opennext-cache
+npx opennextjs-cloudflare build
+npx wrangler deploy
+```
+
+Le bucket R2 sert uniquement au cache incrémental OpenNext. Les images produit
+restent dans le bucket Supabase Storage `marysens-media`.
+
 ## Roadmap technique déjà prévue dans l'architecture
 
 - Un vrai panier multi-produits avant l'envoi WhatsApp (la fonction

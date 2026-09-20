@@ -14,7 +14,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   hero_tagline: "Soin & bien-être naturel",
   hero_description:
     "Des huiles 100% pures et biologiques, sélectionnées avec soin pour votre bien-être au quotidien.",
-  hero_image: "/images/rollon.png",
+  hero_image: "/images/banner.png",
   about_story:
     "Mary'Sens est la marque tunisienne de référence des huiles essentielles et végétales, 100% Pure et Bio. Née d'une passion profonde pour le savoir-faire artisanal tunisien, notre maison puise dans la richesse d'une terre généreuse pour révéler le meilleur de la nature.\n\nChaque flacon incarne un engagement sans compromis envers la pureté, l'authenticité et le bien-être. De la cueillette délicate des plantes à l'extraction méticuleuse de leurs essences, nous célébrons un héritage où tradition et exigence se rencontrent.",
   about_mission:
