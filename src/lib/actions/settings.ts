@@ -8,6 +8,7 @@ import { getDb } from "@/lib/db";
 import { getSiteSettings } from "@/lib/settings";
 import { requireAdminApi } from "@/lib/require-admin";
 import type { SiteSettings } from "@/lib/types";
+import { uploadImage } from "@/lib/cloudinary";
 
 const TEXT_FIELDS: Array<keyof SiteSettings> = [
   "brand_name",
@@ -53,12 +54,6 @@ export async function updateSettings(formData: FormData) {
   redirect("/admin/parametres?success=1");
 }
 
-function safeExtension(filename: string) {
-  const match = filename.match(/\.([a-zA-Z0-9]+)$/);
-  const ext = match ? match[1].toLowerCase() : "jpg";
-  return /^(jpg|jpeg|png|webp|gif)$/.test(ext) ? ext : "jpg";
-}
-
 export async function updateHeroImage(formData: FormData) {
   const admin = await requireAdminApi();
   if (admin instanceof Response) throw new Error("Non autorisé.");
@@ -68,6 +63,13 @@ export async function updateHeroImage(formData: FormData) {
     redirect(`/admin/parametres?heroError=${encodeURIComponent("Veuillez choisir une image.")}`);
   }
 
-  // TODO(storage): implement hero image storage when a file backend is available.
-  throw new Error("Hero image uploads require storage configuration.");
+  const hero_image = await uploadImage(heroFile, "site");
+  const current = await getSiteSettings();
+  await getDb().update(siteSettings).set({
+    data: { ...current, hero_image },
+    updated_at: new Date().toISOString(),
+  }).where(eq(siteSettings.id, 1));
+
+  revalidatePath("/", "layout");
+  redirect("/admin/parametres?heroSuccess=1");
 }

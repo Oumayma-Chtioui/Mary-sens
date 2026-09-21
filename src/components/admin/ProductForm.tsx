@@ -1,4 +1,10 @@
+"use client";
+
 import type { Category, Product } from "@/lib/types";
+import { useState } from "react";
+
+type ActionResult = { error: string } | void;
+type ProductAction = (formData: FormData) => Promise<ActionResult>;
 
 export default function ProductForm({
   categories,
@@ -7,10 +13,19 @@ export default function ProductForm({
 }: {
   categories: Category[];
   product?: Product;
-  action: (formData: FormData) => void;
+  action: ProductAction;
 }) {
+  const [error, setError] = useState<string>();
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(undefined);
+    const result = await action(new FormData(event.currentTarget));
+    if (result?.error) setError(result.error);
+  }
+
   return (
-    <form action={action} className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr]">
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-[2fr_1fr]">
       <div className="flex flex-col gap-5">
         <Field label="Nom du produit" name="name" defaultValue={product?.name} required />
         <Field label="Description courte" name="short_description" defaultValue={product?.short_description ?? ""} textarea rows={2} />
@@ -45,6 +60,7 @@ export default function ProductForm({
           <Checkbox label="Commande WhatsApp activée" name="whatsapp_enabled" defaultChecked={product?.whatsapp_enabled ?? true} />
         </div>
 
+        {error && <p className="border border-argile/40 bg-argile/10 px-4 py-3 text-sm text-argile">{error}</p>}
         <button type="submit" className="btn btn-dark mt-2">
           {product ? "Enregistrer les modifications" : "Créer le produit"}
         </button>

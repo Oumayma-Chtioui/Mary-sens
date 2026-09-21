@@ -7,6 +7,7 @@ import { productImages, products } from "@/db/schema";
 import { getDb } from "@/lib/db";
 import { requireAdminApi } from "@/lib/require-admin";
 import { slugify } from "@/lib/utils";
+import { uploadImage } from "@/lib/cloudinary";
 
 function readProductFields(formData: FormData) {
   const tagsRaw = String(formData.get("tags") ?? "");
@@ -39,8 +40,18 @@ export async function createProduct(formData: FormData) {
   if (admin instanceof Response) throw new Error("Non autorisé.");
   const fields = readProductFields(formData);
   const slug = slugify(fields.name);
+  const existing = await getDb().select({ id: products.id }).from(products).where(eq(products.slug, slug)).limit(1);
+  if (existing.length > 0) return { error: "Un produit avec ce nom existe déjà. Choisissez un autre nom." };
 
-  const [data] = await getDb().insert(products).values({ ...fields, slug }).returning({ id: products.id });
+  let data: { id: string } | undefined;
+  try {
+    [data] = await getDb().insert(products).values({ ...fields, slug }).returning({ id: products.id });
+  } catch (error) {
+    if (String(error).includes("UNIQUE constraint failed: products.slug")) {
+      return { error: "Un produit avec ce nom existe déjà. Choisissez un autre nom." };
+    }
+    throw error;
+  }
   if (!data) throw new Error("Impossible de créer le produit.");
 
   revalidatePath("/admin/produits");
@@ -52,8 +63,20 @@ export async function updateProduct(productId: string, formData: FormData) {
   const admin = await requireAdminApi();
   if (admin instanceof Response) throw new Error("Non autorisé.");
   const fields = readProductFields(formData);
+  const slug = slugify(fields.name);
+  const existing = await getDb().select({ id: products.id }).from(products).where(eq(products.slug, slug)).limit(1);
+  if (existing.some((product) => product.id !== productId)) {
+    return { error: "Un produit avec ce nom existe déjà. Choisissez un autre nom." };
+  }
 
-  await getDb().update(products).set(fields).where(eq(products.id, productId));
+  try {
+    await getDb().update(products).set({ ...fields, slug }).where(eq(products.id, productId));
+  } catch (error) {
+    if (String(error).includes("UNIQUE constraint failed: products.slug")) {
+      return { error: "Un produit avec ce nom existe déjà. Choisissez un autre nom." };
+    }
+    throw error;
+  }
 
   revalidatePath("/admin/produits");
   revalidatePath(`/admin/produits/${productId}`);
@@ -90,17 +113,20 @@ export async function togglePublish(productId: string, next: boolean) {
   revalidatePath("/catalogue");
 }
 
-function safeExtension(filename: string) {
-  const match = filename.match(/\.([a-zA-Z0-9]+)$/);
-  const ext = match ? match[1].toLowerCase() : "jpg";
-  return /^(jpg|jpeg|png|webp|gif)$/.test(ext) ? ext : "jpg";
-}
-
 export async function addProductImage(productId: string, formData: FormData) {
   const admin = await requireAdminApi();
   if (admin instanceof Response) throw new Error("Non autorisé.");
-  // TODO(storage): implement product image storage when a file backend is available.
-  throw new Error("Product image uploads require storage configuration.");
+  const file = formData.get("file") as File | null;
+  if (!file || file.size === 0) return;
+
+  const url = await uploadImage(file, "products");
+  const imageRows = await getDb().select({ id: productImages.id }).from(productImages).where(eq(productImages.product_id, productId));
+  await getDb().insert(productImages).values({
+    product_id: productId,
+    url,
+    position: imageRows.length,
+    is_primary: imageRows.length === 0,
+  });
 
   revalidatePath(`/admin/produits/${productId}`);
   revalidatePath("/catalogue");

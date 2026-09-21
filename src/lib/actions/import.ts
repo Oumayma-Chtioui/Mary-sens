@@ -1,26 +1,29 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { categories, products } from "@/db/schema";
+import { categories, productImages, products } from "@/db/schema";
 import { getDb } from "@/lib/db";
 import { requireAdminApi } from "@/lib/require-admin";
 import { slugify } from "@/lib/utils";
+import { uploadImage } from "@/lib/cloudinary";
 import JSZip from "jszip";
 
-export type ImportRow = {
-  name: string;
-  category?: string;
-  description?: string;
-  price?: string;
-  volume?: string;
-  ingredients?: string;
-  benefits?: string;
-  usage?: string;
-  precautions?: string;
-  availability?: string;
-  featured?: string;
-  image?: string;
-};
+ export type ImportRow = {
+   name: string;
+   category?: string;
+   description?: string;
+   price?: string;
+   volume?: string;
+   ingredients?: string;
+   benefits?: string;
+   usage?: string;
+   precautions?: string;
+   availability?: string;
+   featured?: string;
+    publish?: string;
+    showPrice?: string;
+   image?: string;
+ };
 
 export type ImportResult = {
   totalDetected: number;
@@ -123,22 +126,22 @@ export async function importProducts(rows: ImportRow[], zipFile?: File | null): 
 
     let product: { id: string } | undefined;
     try {
-      [product] = await getDb().insert(products).values({
-        name: row.name.trim(),
-        slug,
-        short_description: row.description?.trim() || null,
-        category_id: categoryId,
-        price,
-        price_visible: price != null,
-        volume: row.volume?.trim() || null,
-        ingredients: row.ingredients?.trim() || null,
-        benefits: row.benefits?.trim() || null,
-        usage_instructions: row.usage?.trim() || null,
-        precautions: row.precautions?.trim() || null,
-        is_available: row.availability ? truthy(row.availability) : true,
-        is_featured: truthy(row.featured),
-        is_published: false,
-      }).returning({ id: products.id });
+             [product] = await getDb().insert(products).values({
+            name: row.name.trim(),
+            slug,
+            short_description: row.description?.trim() || null,
+            category_id: categoryId,
+            price,
+            price_visible: row.showPrice ? truthy(row.showPrice) : price != null,
+            volume: row.volume?.trim() || null,
+            ingredients: row.ingredients?.trim() || null,
+            benefits: row.benefits?.trim() || null,
+            usage_instructions: row.usage?.trim() || null,
+            precautions: row.precautions?.trim() || null,
+            is_available: row.availability ? truthy(row.availability) : true,
+            is_featured: truthy(row.featured),
+            is_published: truthy(row.publish),
+          }).returning({ id: products.id });
     } catch (error) {
       errors.push({ row: rowNumber, name: row.name, reason: String(error) });
       continue;
@@ -164,8 +167,20 @@ export async function importProducts(rows: ImportRow[], zipFile?: File | null): 
               : `Image "${imageValue}" introuvable dans le fichier ZIP.`,
           });
         } else {
-          // TODO(storage): implement imported image storage when a file backend is available.
-          throw new Error("Imported image uploads require storage configuration.");
+          const imageBytes = Uint8Array.from(result.buffer);
+          const file = new File(
+            [imageBytes],
+            `product-${product.id}.${result.ext}`,
+            { type: guessContentType(result.ext) }
+          );
+          const url = await uploadImage(file, "products");
+          await getDb().insert(productImages).values({
+            product_id: product.id,
+            url,
+            position: 0,
+            is_primary: true,
+          });
+          imagesMatchedCount++;
         }
       } catch (err: any) {
         imagesMissingCount++;

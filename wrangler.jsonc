@@ -19,5 +19,13 @@
 			"database_id": "de36711b-e804-4953-a3f8-8498c2b44b9d",
 			"migrations_dir": "drizzle"
 		}
-	]
+	],
+
+	"observability": {
+		"logs": {			
+		"enabled": false,
+		"invocation_logs": true
+		}
+	}
+
 }
