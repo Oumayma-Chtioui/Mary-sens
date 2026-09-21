@@ -23,7 +23,7 @@ export default function LoginPage() {
       setPending(false);
       return;
     }
-    router.push("/admin");
+    window.location.href = "/admin";
   }
 
   return (

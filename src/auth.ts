@@ -11,4 +11,5 @@ export const createAuth = (env: Env) =>
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL, // https://marysens-store.com
     plugins: [nextCookies()],
+    trustedOrigins: ["https://marysens-store.com", "https://www.marysens-store.com"],
   });
