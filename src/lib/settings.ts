@@ -1,4 +1,6 @@
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { eq } from "drizzle-orm";
+import { siteSettings } from "@/db/schema";
+import { getDb } from "@/lib/db";
 import type { SiteSettings } from "@/lib/types";
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -30,13 +32,10 @@ export const DEFAULT_SETTINGS: SiteSettings = {
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {
-  if (!isSupabaseConfigured()) return DEFAULT_SETTINGS;
-
   try {
-    const supabase = await createClient();
-    const { data } = await supabase.from("site_settings").select("data").eq("id", 1).single();
-    if (!data?.data) return DEFAULT_SETTINGS;
-    return { ...DEFAULT_SETTINGS, ...data.data };
+    const [row] = await getDb().select({ data: siteSettings.data }).from(siteSettings).where(eq(siteSettings.id, 1)).limit(1);
+    if (!row?.data) return DEFAULT_SETTINGS;
+    return { ...DEFAULT_SETTINGS, ...row.data } as SiteSettings;
   } catch {
     return DEFAULT_SETTINGS;
   }

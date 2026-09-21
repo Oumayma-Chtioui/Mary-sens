@@ -1,7 +1,9 @@
-import { createAdminClient } from "@/lib/supabase/server";
+import { and, count, eq, gte, lt } from "drizzle-orm";
+import { rateLimits } from "@/db/schema";
+import { getDb } from "@/lib/db";
 
 /**
- * Supabase-backed rate limiter. Deliberately not in-memory: on Vercel each
+ * D1-backed rate limiter. Deliberately not in-memory: on Workers each
  * serverless instance has its own memory, so an in-memory counter would reset
  * constantly and be trivially bypassed. This shares state across instances.
  */
@@ -11,30 +13,24 @@ export async function checkRateLimit(
   windowSeconds: number
 ): Promise<{ allowed: boolean; retryAfter: number }> {
   try {
-    const supabase = createAdminClient();
+    const db = getDb();
     const since = new Date(Date.now() - windowSeconds * 1000).toISOString();
 
-    const { count, error } = await supabase
-      .from("rate_limits")
-      .select("*", { count: "exact", head: true })
-      .eq("key", key)
-      .gte("created_at", since);
+    const [{ c }] = await db
+      .select({ c: count() })
+      .from(rateLimits)
+      .where(and(eq(rateLimits.key, key), gte(rateLimits.created_at, since)));
 
-    if (error) {
-      console.error("[rateLimit] lookup failed, allowing request:", error);
-      return { allowed: true, retryAfter: 0 };
-    }
-
-    if ((count ?? 0) >= limit) {
+    if (Number(c ?? 0) >= limit) {
       return { allowed: false, retryAfter: windowSeconds };
     }
 
-    await supabase.from("rate_limits").insert({ key });
+    await db.insert(rateLimits).values({ key });
 
     // Opportunistic cleanup (~2% of calls) so the table doesn't grow forever.
     if (Math.random() < 0.02) {
       const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-      await supabase.from("rate_limits").delete().lt("created_at", cutoff);
+      await db.delete(rateLimits).where(lt(rateLimits.created_at, cutoff));
     }
 
     return { allowed: true, retryAfter: 0 };

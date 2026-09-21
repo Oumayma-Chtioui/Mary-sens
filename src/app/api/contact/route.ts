@@ -1,13 +1,10 @@
 
 import { NextResponse } from "next/server";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { contactMessages } from "@/db/schema";
+import { getDb } from "@/lib/db";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
-  if (!isSupabaseConfigured()) {
-    return NextResponse.json({ error: "Supabase n'est pas encore configuré." }, { status: 503 });
-  }
-
   const ip = getClientIp(request);
   const { allowed } = await checkRateLimit(`contact:${ip}`, 5, 60 * 60);
   if (!allowed) {
@@ -37,16 +34,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Adresse e-mail invalide." }, { status: 400 });
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("contact_messages").insert({
-    name,
-    email,
-    phone: phone || null,
-    subject: subject || null,
-    message,
-  });
-
-  if (error) {
+  try {
+    await getDb().insert(contactMessages).values({
+      name,
+      email,
+      phone: phone || null,
+      subject: subject || null,
+      message,
+    });
+  } catch (error) {
     console.error("[/api/contact] insert failed:", error);
     return NextResponse.json({ error: "Impossible d'enregistrer le message." }, { status: 500 });
   }

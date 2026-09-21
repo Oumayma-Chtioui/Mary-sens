@@ -50,7 +50,7 @@ export default function CheckoutPage() {
         }),
       });
 
-      const data = await res.json();
+      const data = (await res.json()) as { error?: string; id?: string };
 
       if (!res.ok) {
         setErrorMessage(data.error ?? "Une erreur est survenue. Veuillez réessayer.");

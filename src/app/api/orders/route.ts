@@ -1,6 +1,8 @@
 
 import { NextResponse } from "next/server";
-import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { eq, inArray } from "drizzle-orm";
+import { getDb } from "@/lib/db";
+import { orderItems, orders, products } from "@/db/schema";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 type IncomingItem = { productId: string; quantity: number };
 
@@ -30,10 +32,6 @@ function clean(value: unknown, max: number) {
 }
 
 export async function POST(request: Request) {
-  if (!isSupabaseConfigured()) {
-    return NextResponse.json({ error: "Supabase n'est pas encore configuré." }, { status: 503 });
-  }
-
   // 10 orders per IP per hour.
   const ip = getClientIp(request);
   const { allowed } = await checkRateLimit(`order:${ip}`, 10, 60 * 60);
@@ -93,19 +91,19 @@ export async function POST(request: Request) {
     cleanedItems.push({ productId, quantity });
   }
 
-  const supabase = createAdminClient();
-
-  const { data: products, error: productsError } = await supabase
-    .from("products")
-    .select("id, name, price, is_available, is_published")
-    .in("id", cleanedItems.map((i) => i.productId));
-
-  if (productsError) {
-    console.error("[/api/orders] Failed to fetch products:", productsError);
+  const db = getDb();
+  let availableProducts;
+  try {
+    availableProducts = await db
+      .select({ id: products.id, name: products.name, price: products.price, is_available: products.is_available, is_published: products.is_published })
+      .from(products)
+      .where(inArray(products.id, cleanedItems.map((i) => i.productId)));
+  } catch (error) {
+    console.error("[/api/orders] Failed to fetch products:", error);
     return NextResponse.json({ error: "Erreur lors de la vérification des produits." }, { status: 500 });
   }
 
-  const productById = new Map((products ?? []).map((p) => [p.id, p]));
+  const productById = new Map(availableProducts.map((p) => [p.id, p]));
   const orderItemsToInsert = [];
 
   for (const item of cleanedItems) {
@@ -133,28 +131,27 @@ export async function POST(request: Request) {
   // unique constraint is what actually guarantees uniqueness.
   let order: { id: string; order_number: string } | null = null;
   for (let attempt = 0; attempt < 5; attempt++) {
-    const { data, error } = await supabase
-      .from("orders")
-      .insert({
-        order_number: generateOrderNumber(),
-        customer_name: `${firstName} ${lastName}`,
-        customer_phone: phone,
-        customer_email: email || null,
-        customer_address: address,
-        customer_city: city,
-        notes: notes || null,
-        total_amount: totalAmount,
-      })
-      .select("id, order_number")
-      .single();
-
-    if (!error && data) {
-      order = data;
-      break;
-    }
-    if (error && error.code !== "23505") {
-      console.error("[/api/orders] Failed to create order:", error);
-      return NextResponse.json({ error: "Impossible de créer la commande." }, { status: 500 });
+    try {
+      const [data] = await db
+        .insert(orders)
+        .values({
+          order_number: generateOrderNumber(),
+          customer_name: `${firstName} ${lastName}`,
+          customer_phone: phone,
+          customer_email: email || null,
+          customer_address: address,
+          customer_city: city,
+          notes: notes || null,
+          total_amount: totalAmount,
+        })
+        .returning({ id: orders.id, order_number: orders.order_number });
+      order = data ?? null;
+      if (order) break;
+    } catch (error) {
+      if (!String(error).includes("UNIQUE")) {
+        console.error("[/api/orders] Failed to create order:", error);
+        return NextResponse.json({ error: "Impossible de créer la commande." }, { status: 500 });
+      }
     }
   }
 
@@ -162,13 +159,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Impossible de créer la commande." }, { status: 500 });
   }
 
-  const { error: itemsError } = await supabase
-    .from("order_items")
-    .insert(orderItemsToInsert.map((i) => ({ ...i, order_id: order!.id })));
-
-  if (itemsError) {
-    console.error("[/api/orders] Failed to create order items:", itemsError);
-    await supabase.from("orders").delete().eq("id", order.id);
+  try {
+    await db.insert(orderItems).values(orderItemsToInsert.map((i) => ({ ...i, order_id: order!.id })));
+  } catch (error) {
+    console.error("[/api/orders] Failed to create order items:", error);
+    await db.delete(orders).where(eq(orders.id, order.id));
     return NextResponse.json({ error: "Impossible d'enregistrer les articles." }, { status: 500 });
   }
 

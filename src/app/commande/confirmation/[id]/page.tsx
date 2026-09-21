@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CheckCircle2, ArrowRight, Camera } from "lucide-react";
-import { createAdminClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { eq } from "drizzle-orm";
+import { orderItems, orders } from "@/db/schema";
+import { getDb } from "@/lib/db";
 import { formatPrice } from "@/lib/utils";
 import type { Order, OrderStatus } from "@/lib/types";
 import { ORDER_STATUSES } from "@/lib/types";
@@ -21,27 +23,12 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
 export default async function OrderConfirmationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  if (!isSupabaseConfigured()) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center bg-black px-6 text-center text-white/60">
-        Supabase n&apos;est pas encore configuré.
-      </div>
-    );
-  }
+  const db = getDb();
+  const [order] = await db.select().from(orders).where(eq(orders.id, id)).limit(1);
+  if (!order) notFound();
+  const items = await db.select().from(orderItems).where(eq(orderItems.order_id, id));
 
-  // Fetched with the service-role client, server-side only — never exposed
-  // to the browser's anon key. Filtered to this exact id, so this can't be
-  // used to list or browse other customers' orders.
-  const supabase = createAdminClient();
-  const { data: order, error } = await supabase
-    .from("orders")
-    .select("*, items:order_items(*)")
-    .eq("id", id)
-    .single();
-
-  if (error || !order) notFound();
-
-  const typedOrder = order as Order;
+  const typedOrder = { ...order, items } as Order;
   const currentStepIndex = ORDER_STATUSES.indexOf(typedOrder.status);
 
   return (

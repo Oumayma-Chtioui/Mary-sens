@@ -5,7 +5,7 @@ import * as schema from './db/schema';
 
 export const createAuth = (env: Env) =>
   betterAuth({
-    database: drizzleAdapter(drizzle(env.mary_sens_db, { schema }), { provider: 'sqlite', schema }),
+    database: drizzleAdapter(drizzle(env.DB, { schema }), { provider: 'sqlite', schema }),
     emailAndPassword: { enabled: true, disableSignUp: true }, // admin only, no public signup
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL, // https://marysens-store.com

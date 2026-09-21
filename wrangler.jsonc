@@ -11,9 +11,10 @@
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
 	},
+  
 	"d1_databases": [
 		{
-			"binding": "mary_sens_db",
+			"binding": "DB",
 			"database_name": "mary-sens-db",
 			"database_id": "de36711b-e804-4953-a3f8-8498c2b44b9d",
 			"migrations_dir": "drizzle"
