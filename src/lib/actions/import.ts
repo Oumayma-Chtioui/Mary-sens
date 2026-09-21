@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { categories, products } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdminApi } from "@/lib/require-admin";
 import { slugify } from "@/lib/utils";
 import JSZip from "jszip";
 
@@ -72,10 +74,11 @@ async function fetchImageBuffer(
 }
 
 export async function importProducts(rows: ImportRow[], zipFile?: File | null): Promise<ImportResult> {
-  const supabase = await createClient();
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
 
-  const { data: categories } = await supabase.from("categories").select("id,name");
-  const categoryByName = new Map((categories ?? []).map((c) => [c.name.trim().toLowerCase(), c.id]));
+  const categoryRows = await getDb().select({ id: categories.id, name: categories.name }).from(categories);
+  const categoryByName = new Map(categoryRows.map((c) => [c.name.trim().toLowerCase(), c.id]));
 
   let imagesByName: Map<string, JSZip.JSZipObject> | null = null;
   if (zipFile && zipFile.size > 0) {
@@ -118,9 +121,9 @@ export async function importProducts(rows: ImportRow[], zipFile?: File | null): 
     const categoryId = row.category ? categoryByName.get(row.category.trim().toLowerCase()) ?? null : null;
     const slug = slugify(row.name.trim()) + "-" + Math.random().toString(36).slice(2, 6);
 
-    const { data: product, error } = await supabase
-      .from("products")
-      .insert({
+    let product: { id: string } | undefined;
+    try {
+      [product] = await getDb().insert(products).values({
         name: row.name.trim(),
         slug,
         short_description: row.description?.trim() || null,
@@ -135,12 +138,14 @@ export async function importProducts(rows: ImportRow[], zipFile?: File | null): 
         is_available: row.availability ? truthy(row.availability) : true,
         is_featured: truthy(row.featured),
         is_published: false,
-      })
-      .select("id")
-      .single();
+      }).returning({ id: products.id });
+    } catch (error) {
+      errors.push({ row: rowNumber, name: row.name, reason: String(error) });
+      continue;
+    }
 
-    if (error || !product) {
-      errors.push({ row: rowNumber, name: row.name, reason: error?.message ?? "Erreur inconnue." });
+    if (!product) {
+      errors.push({ row: rowNumber, name: row.name, reason: "Erreur inconnue." });
       continue;
     }
     importedCount++;
@@ -159,25 +164,8 @@ export async function importProducts(rows: ImportRow[], zipFile?: File | null): 
               : `Image "${imageValue}" introuvable dans le fichier ZIP.`,
           });
         } else {
-          const path = `products/${product.id}/${Date.now()}.${result.ext}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from("marysens-media")
-            .upload(path, result.buffer, { contentType: guessContentType(result.ext), upsert: false });
-
-          if (uploadError) {
-            imagesMissingCount++;
-            errors.push({ row: rowNumber, name: row.name, reason: `Échec de l'envoi de l'image : ${uploadError.message}` });
-          } else {
-            const { data: publicUrl } = supabase.storage.from("marysens-media").getPublicUrl(path);
-            await supabase.from("product_images").insert({
-              product_id: product.id,
-              url: publicUrl.publicUrl,
-              position: 0,
-              is_primary: true,
-            });
-            imagesMatchedCount++;
-          }
+          // TODO(storage): implement imported image storage when a file backend is available.
+          throw new Error("Imported image uploads require storage configuration.");
         }
       } catch (err: any) {
         imagesMissingCount++;

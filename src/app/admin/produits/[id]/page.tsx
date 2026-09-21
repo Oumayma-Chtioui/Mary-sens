@@ -1,18 +1,25 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { asc, eq } from "drizzle-orm";
+import { categories, productImages, products } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdmin } from "@/lib/require-admin";
 import { updateProduct, addProductImage, deleteProductImage, setPrimaryImage } from "@/lib/actions/products";
 import ProductForm from "@/components/admin/ProductForm";
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
   const { id } = await params;
-  const supabase = await createClient();
-  const [{ data: product }, { data: categories }] = await Promise.all([
-    supabase.from("products").select("*, images:product_images(*)").eq("id", id).single(),
-    supabase.from("categories").select("*").order("position"),
+  const db = getDb();
+  const [[product], imageRows, categoryRows] = await Promise.all([
+    db.select().from(products).where(eq(products.id, id)).limit(1),
+    db.select().from(productImages).where(eq(productImages.product_id, id)),
+    db.select().from(categories).orderBy(asc(categories.position)),
   ]);
 
   if (!product) notFound();
+
+  const productWithImages = { ...product, images: imageRows };
 
   return (
     <div>
@@ -21,7 +28,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
       <div className="mb-10 border border-border bg-ivoire p-6">
         <h2 className="mb-4 text-sm font-medium uppercase tracking-[0.08em] text-ink/60">Images du produit</h2>
         <div className="mb-5 flex flex-wrap gap-4">
-          {(product.images ?? [])
+          {productWithImages.images
             .sort((a: any, b: any) => a.position - b.position)
             .map((img: any) => (
               <div key={img.id} className="relative h-28 w-28 overflow-hidden border border-border">
@@ -48,7 +55,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         </form>
       </div>
 
-      <ProductForm categories={categories ?? []} product={product} action={updateProduct.bind(null, product.id)} />
+      <ProductForm categories={categoryRows} product={productWithImages} action={updateProduct.bind(null, product.id)} />
     </div>
   );
 }

@@ -1,7 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { eq } from "drizzle-orm";
+import { categories } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdminApi } from "@/lib/require-admin";
 import { slugify } from "@/lib/utils";
 
 function safeExtension(filename: string) {
@@ -10,39 +13,18 @@ function safeExtension(filename: string) {
   return /^(jpg|jpeg|png|webp|gif)$/.test(ext) ? ext : "jpg";
 }
 
-async function uploadCategoryImage(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  categoryId: string,
-  file: File
-) {
-  const ext = safeExtension(file.name);
-  const path = `categories/${categoryId}/${Date.now()}.${ext}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from("marysens-media")
-    .upload(path, file, { contentType: file.type || undefined, upsert: false });
-  if (uploadError) throw uploadError;
-
-  const { data: publicUrl } = supabase.storage.from("marysens-media").getPublicUrl(path);
-  return publicUrl.publicUrl;
-}
-
 export async function createCategory(formData: FormData) {
-  const supabase = await createClient();
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "") || null;
   const imageFile = formData.get("image") as File | null;
 
-  const { data: category, error } = await supabase
-    .from("categories")
-    .insert({ name, slug: slugify(name), description })
-    .select("id")
-    .single();
-  if (error) throw new Error(error.message);
+  const [category] = await getDb().insert(categories).values({ name, slug: slugify(name), description }).returning({ id: categories.id });
 
   if (imageFile && imageFile.size > 0) {
-    const imageUrl = await uploadCategoryImage(supabase, category.id, imageFile);
-    await supabase.from("categories").update({ image_url: imageUrl }).eq("id", category.id);
+    // TODO(storage): implement category image storage when a file backend is available.
+    throw new Error("Category image uploads require storage configuration.");
   }
 
   revalidatePath("/admin/categories");
@@ -51,7 +33,8 @@ export async function createCategory(formData: FormData) {
 }
 
 export async function updateCategory(categoryId: string, formData: FormData) {
-  const supabase = await createClient();
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "") || null;
   const is_visible = formData.get("is_visible") === "on";
@@ -60,11 +43,11 @@ export async function updateCategory(categoryId: string, formData: FormData) {
   const updates: Record<string, unknown> = { name, description, is_visible };
 
   if (imageFile && imageFile.size > 0) {
-    updates.image_url = await uploadCategoryImage(supabase, categoryId, imageFile);
+    // TODO(storage): implement category image storage when a file backend is available.
+    throw new Error("Category image uploads require storage configuration.");
   }
 
-  const { error } = await supabase.from("categories").update(updates).eq("id", categoryId);
-  if (error) throw new Error(error.message);
+  await getDb().update(categories).set(updates).where(eq(categories.id, categoryId));
 
   revalidatePath("/admin/categories");
   revalidatePath("/catalogue");
@@ -72,16 +55,16 @@ export async function updateCategory(categoryId: string, formData: FormData) {
 }
 
 export async function deleteCategory(categoryId: string) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("categories").delete().eq("id", categoryId);
-  if (error) throw new Error(error.message);
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  await getDb().delete(categories).where(eq(categories.id, categoryId));
   revalidatePath("/admin/categories");
   revalidatePath("/catalogue");
 }
 
 export async function reorderCategory(categoryId: string, position: number) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("categories").update({ position }).eq("id", categoryId);
-  if (error) throw new Error(error.message);
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  await getDb().update(categories).set({ position }).where(eq(categories.id, categoryId));
   revalidatePath("/admin/categories");
 }

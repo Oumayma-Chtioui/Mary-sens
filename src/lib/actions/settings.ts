@@ -2,8 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { eq } from "drizzle-orm";
+import { siteSettings } from "@/db/schema";
+import { getDb } from "@/lib/db";
 import { getSiteSettings } from "@/lib/settings";
+import { requireAdminApi } from "@/lib/require-admin";
 import type { SiteSettings } from "@/lib/types";
 
 const TEXT_FIELDS: Array<keyof SiteSettings> = [
@@ -27,7 +30,8 @@ const TEXT_FIELDS: Array<keyof SiteSettings> = [
 ];
 
 export async function updateSettings(formData: FormData) {
-  const supabase = await createClient();
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
   const current = await getSiteSettings();
   const updated: SiteSettings = { ...current };
 
@@ -38,14 +42,11 @@ export async function updateSettings(formData: FormData) {
 
   updated.whatsapp_enabled = formData.get("whatsapp_enabled") === "true";
 
-  const { error } = await supabase
-    .from("site_settings")
-    .update({ data: updated, updated_at: new Date().toISOString() })
-    .eq("id", 1);
-
-  if (error) {
+  try {
+    await getDb().update(siteSettings).set({ data: updated, updated_at: new Date().toISOString() }).where(eq(siteSettings.id, 1));
+  } catch (error) {
     console.error("[updateSettings] failed:", error);
-    redirect(`/admin/parametres?error=${encodeURIComponent(error.message)}`);
+    redirect(`/admin/parametres?error=${encodeURIComponent(String(error))}`);
   }
 
   revalidatePath("/", "layout");
@@ -59,43 +60,14 @@ function safeExtension(filename: string) {
 }
 
 export async function updateHeroImage(formData: FormData) {
-  const supabase = await createClient();
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
   const heroFile = formData.get("hero_image_file") as File | null;
 
   if (!heroFile || heroFile.size === 0) {
     redirect(`/admin/parametres?heroError=${encodeURIComponent("Veuillez choisir une image.")}`);
   }
 
-  let errorMessage: string | null = null;
-
-  try {
-    const ext = safeExtension(heroFile.name);
-    const path = `settings/hero-${Date.now()}.${ext}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("marysens-media")
-      .upload(path, heroFile, { contentType: heroFile.type || undefined, upsert: false });
-    if (uploadError) throw uploadError;
-
-    const { data: publicUrl } = supabase.storage.from("marysens-media").getPublicUrl(path);
-
-    const current = await getSiteSettings();
-    const updated: SiteSettings = { ...current, hero_image: publicUrl.publicUrl };
-
-    const { error } = await supabase
-      .from("site_settings")
-      .update({ data: updated, updated_at: new Date().toISOString() })
-      .eq("id", 1);
-    if (error) throw error;
-  } catch (err: any) {
-    console.error("[updateHeroImage] failed:", err);
-    errorMessage = err?.message ?? "Erreur inconnue lors du téléversement.";
-  }
-
-  if (errorMessage) {
-    redirect(`/admin/parametres?heroError=${encodeURIComponent(errorMessage)}`);
-  }
-
-  revalidatePath("/", "layout");
-  redirect("/admin/parametres?heroSuccess=1");
+  // TODO(storage): implement hero image storage when a file backend is available.
+  throw new Error("Hero image uploads require storage configuration.");
 }

@@ -1,5 +1,8 @@
 import Image from "next/image";
-import { createClient } from "@/lib/supabase/server";
+import { asc } from "drizzle-orm";
+import { categories } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdmin } from "@/lib/require-admin";
 import { createCategory, updateCategory, deleteCategory } from "@/lib/actions/categories";
 
 export default async function AdminCategoriesPage({
@@ -7,8 +10,8 @@ export default async function AdminCategoriesPage({
 }: {
   searchParams: Promise<{ error?: string; success?: string }>;
 }) {
-  const supabase = await createClient();
-  const { data: categories } = await supabase.from("categories").select("*").order("position");
+  await requireAdmin();
+  const categoryRows = await getDb().select().from(categories).orderBy(asc(categories.position));
   const params = await searchParams;
 
   return (
@@ -42,7 +45,7 @@ export default async function AdminCategoriesPage({
       </div>
 
       <div className="flex flex-col gap-3">
-        {(categories ?? []).map((c) => (
+        {categoryRows.map((c) => (
           <form
             key={c.id}
             action={updateCategory.bind(null, c.id)}
@@ -71,7 +74,7 @@ export default async function AdminCategoriesPage({
             </div>
           </form>
         ))}
-        {(!categories || categories.length === 0) && (
+        {categoryRows.length === 0 && (
           <p className="text-sm text-ink/45">Aucune catégorie pour le moment.</p>
         )}
       </div>

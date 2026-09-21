@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { eq } from "drizzle-orm";
+import { orderItems, orders } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdmin } from "@/lib/require-admin";
 import { updateOrderStatus } from "@/lib/actions/orders";
 import { ORDER_STATUSES, type Order, type OrderStatus } from "@/lib/types";
 import { formatPrice, cx } from "@/lib/utils";
@@ -15,18 +18,14 @@ const STATUS_BADGE: Record<OrderStatus, string> = {
 };
 
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
   const { id } = await params;
-  const supabase = await createClient();
-
-  const { data: order } = await supabase
-    .from("orders")
-    .select("*, items:order_items(*)")
-    .eq("id", id)
-    .single();
+  const [order] = await getDb().select().from(orders).where(eq(orders.id, id)).limit(1);
+  const items = await getDb().select().from(orderItems).where(eq(orderItems.order_id, id));
 
   if (!order) notFound();
 
-  const typedOrder = order as Order;
+  const typedOrder = { ...order, items } as Order;
 
   async function setStatus(formData: FormData) {
     "use server";

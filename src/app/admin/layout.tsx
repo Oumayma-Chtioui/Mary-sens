@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { createAuth } from "@/auth";
+import { headers } from "next/headers";
+import { requireAdmin } from "@/lib/require-admin";
 
 const navItems = [
   { href: "/admin", label: "Tableau de bord" },
@@ -13,29 +16,17 @@ const navItems = [
   { href: "/admin/parametres", label: "Paramètres" },
 ];
 
+export const dynamic = "force-dynamic";
+
 async function logout() {
   "use server";
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  const { env } = getCloudflareContext();
+  await createAuth(env as Env).api.signOut({ headers: await headers() });
   redirect("/admin/login");
 }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  if (!isSupabaseConfigured()) {
-    return <div className="min-h-screen bg-ivoire">{children}</div>;
-  }
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // No signed-in user: this is /admin/login rendering without chrome.
-  // (The middleware already blocks unauthenticated access to every other
-  // /admin route, so this branch is only ever the login screen.)
-  if (!user) {
-    return <div className="min-h-screen bg-noir">{children}</div>;
-  }
+  await requireAdmin();
 
   return (
     <div className="min-h-screen bg-ivoire text-ink">

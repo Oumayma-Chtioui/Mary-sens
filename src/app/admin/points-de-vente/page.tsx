@@ -1,9 +1,12 @@
-import { createClient } from "@/lib/supabase/server";
+import { asc } from "drizzle-orm";
+import { locations } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdmin } from "@/lib/require-admin";
 import { createLocation, updateLocation, deleteLocation } from "@/lib/actions/locations";
 
 export default async function AdminLocationsPage() {
-  const supabase = await createClient();
-  const { data: locations } = await supabase.from("locations").select("*").order("position");
+  await requireAdmin();
+  const locationRows = await getDb().select().from(locations).orderBy(asc(locations.position));
 
   return (
     <div>
@@ -24,7 +27,7 @@ export default async function AdminLocationsPage() {
       </div>
 
       <div className="flex flex-col gap-4">
-        {(locations ?? []).map((loc) => (
+        {locationRows.map((loc) => (
           <form key={loc.id} action={updateLocation.bind(null, loc.id)} className="grid grid-cols-1 gap-3 border border-border bg-ivoire p-5 sm:grid-cols-2">
             <input name="name" defaultValue={loc.name} className="border border-ink/20 bg-transparent px-3 py-2 text-sm" />
             <input name="city" defaultValue={loc.city ?? ""} className="border border-ink/20 bg-transparent px-3 py-2 text-sm" />
@@ -44,7 +47,7 @@ export default async function AdminLocationsPage() {
             </div>
           </form>
         ))}
-        {(!locations || locations.length === 0) && (
+        {locationRows.length === 0 && (
           <p className="text-sm text-ink/45">Aucun point de vente pour le moment.</p>
         )}
       </div>

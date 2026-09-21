@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { asc, eq } from "drizzle-orm";
+import { categories, products } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdmin } from "@/lib/require-admin";
 import { deleteProduct, duplicateProduct, togglePublish } from "@/lib/actions/products";
 
 export default async function AdminProductsPage() {
-  const supabase = await createClient();
-  const { data: products } = await supabase
-    .from("products")
-    .select("id,name,is_published,is_featured,is_available,price,category:categories(name)")
-    .order("position", { ascending: true });
+  await requireAdmin();
+  const rows = await getDb().select().from(products).orderBy(asc(products.position));
+  const categoryRows = await getDb().select({ id: categories.id, name: categories.name }).from(categories);
+  const categoryById = new Map(categoryRows.map((category) => [category.id, category]));
 
   return (
     <div>
@@ -16,7 +18,7 @@ export default async function AdminProductsPage() {
         <Link href="/admin/produits/nouveau" className="btn btn-dark">Nouveau produit</Link>
       </div>
 
-      {products && products.length > 0 ? (
+      {rows.length > 0 ? (
         <div className="overflow-x-auto border border-border bg-ivoire">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-ivoire-2 text-[11px] uppercase tracking-[0.08em] text-ink/50">
@@ -29,12 +31,12 @@ export default async function AdminProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {products.map((p: any) => (
+              {rows.map((p) => (
                 <tr key={p.id} className="border-b border-border last:border-0">
                   <td className="px-5 py-3.5">
                     <Link href={`/admin/produits/${p.id}`} className="hover:text-or-deep">{p.name}</Link>
                   </td>
-                  <td className="px-5 py-3.5 text-ink/60">{p.category?.name ?? "—"}</td>
+                  <td className="px-5 py-3.5 text-ink/60">{p.category_id ? categoryById.get(p.category_id)?.name ?? "—" : "—"}</td>
                   <td className="px-5 py-3.5">
                     <form action={togglePublish.bind(null, p.id, !p.is_published)}>
                       <button

@@ -1,20 +1,20 @@
-import { createClient } from "@/lib/supabase/server";
+import { desc } from "drizzle-orm";
+import { contactMessages } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdmin } from "@/lib/require-admin";
 import { markMessageStatus, deleteMessage } from "@/lib/actions/messages";
 import { cx } from "@/lib/utils";
 
 export default async function AdminMessagesPage() {
-  const supabase = await createClient();
-  const { data: messages } = await supabase
-    .from("contact_messages")
-    .select("*")
-    .order("created_at", { ascending: false });
+  await requireAdmin();
+  const messages = await getDb().select().from(contactMessages).orderBy(desc(contactMessages.created_at));
 
   return (
     <div>
       <h1 className="mb-8 font-display text-3xl">Messages</h1>
 
       <div className="flex flex-col gap-4">
-        {(messages ?? []).map((m) => (
+        {messages.map((m) => (
           <div key={m.id} className="border border-border bg-ivoire p-6">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -47,7 +47,7 @@ export default async function AdminMessagesPage() {
             </div>
           </div>
         ))}
-        {(!messages || messages.length === 0) && (
+        {messages.length === 0 && (
           <p className="text-sm text-ink/45">Aucun message reçu pour le moment.</p>
         )}
       </div>

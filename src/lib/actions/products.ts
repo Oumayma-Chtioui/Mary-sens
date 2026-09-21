@@ -2,7 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { eq } from "drizzle-orm";
+import { productImages, products } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdminApi } from "@/lib/require-admin";
 import { slugify } from "@/lib/utils";
 
 function readProductFields(formData: FormData) {
@@ -32,17 +35,13 @@ function readProductFields(formData: FormData) {
 }
 
 export async function createProduct(formData: FormData) {
-  const supabase = await createClient();
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
   const fields = readProductFields(formData);
   const slug = slugify(fields.name);
 
-  const { data, error } = await supabase
-    .from("products")
-    .insert({ ...fields, slug })
-    .select("id")
-    .single();
-
-  if (error) throw new Error(error.message);
+  const [data] = await getDb().insert(products).values({ ...fields, slug }).returning({ id: products.id });
+  if (!data) throw new Error("Impossible de créer le produit.");
 
   revalidatePath("/admin/produits");
   revalidatePath("/catalogue");
@@ -50,11 +49,11 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function updateProduct(productId: string, formData: FormData) {
-  const supabase = await createClient();
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
   const fields = readProductFields(formData);
 
-  const { error } = await supabase.from("products").update(fields).eq("id", productId);
-  if (error) throw new Error(error.message);
+  await getDb().update(products).set(fields).where(eq(products.id, productId));
 
   revalidatePath("/admin/produits");
   revalidatePath(`/admin/produits/${productId}`);
@@ -62,35 +61,31 @@ export async function updateProduct(productId: string, formData: FormData) {
 }
 
 export async function deleteProduct(productId: string) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("products").delete().eq("id", productId);
-  if (error) throw new Error(error.message);
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  await getDb().delete(products).where(eq(products.id, productId));
   revalidatePath("/admin/produits");
   revalidatePath("/catalogue");
 }
 
 export async function duplicateProduct(productId: string) {
-  const supabase = await createClient();
-  const { data: original } = await supabase.from("products").select("*").eq("id", productId).single();
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  const [original] = await getDb().select().from(products).where(eq(products.id, productId)).limit(1);
   if (!original) throw new Error("Produit introuvable.");
 
   const { id, created_at, updated_at, slug, ...rest } = original;
   const newName = `${rest.name} (copie)`;
-  const { data, error } = await supabase
-    .from("products")
-    .insert({ ...rest, name: newName, slug: slugify(newName), is_published: false })
-    .select("id")
-    .single();
-
-  if (error) throw new Error(error.message);
+  const [data] = await getDb().insert(products).values({ ...rest, name: newName, slug: slugify(newName), is_published: false }).returning({ id: products.id });
+  if (!data) throw new Error("Impossible de dupliquer le produit.");
   revalidatePath("/admin/produits");
   redirect(`/admin/produits/${data.id}`);
 }
 
 export async function togglePublish(productId: string, next: boolean) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("products").update({ is_published: next }).eq("id", productId);
-  if (error) throw new Error(error.message);
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  await getDb().update(products).set({ is_published: next }).where(eq(products.id, productId));
   revalidatePath("/admin/produits");
   revalidatePath("/catalogue");
 }
@@ -102,48 +97,27 @@ function safeExtension(filename: string) {
 }
 
 export async function addProductImage(productId: string, formData: FormData) {
-  const supabase = await createClient();
-  const file = formData.get("file") as File;
-  if (!file || file.size === 0) return;
-
-  const ext = safeExtension(file.name);
-  const path = `products/${productId}/${Date.now()}.${ext}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from("marysens-media")
-    .upload(path, file, { contentType: file.type || undefined, upsert: false });
-  if (uploadError) throw new Error(uploadError.message);
-
-  const { data: publicUrl } = supabase.storage.from("marysens-media").getPublicUrl(path);
-
-  const { count } = await supabase
-    .from("product_images")
-    .select("*", { count: "exact", head: true })
-    .eq("product_id", productId);
-
-  const { error } = await supabase.from("product_images").insert({
-    product_id: productId,
-    url: publicUrl.publicUrl,
-    position: count ?? 0,
-    is_primary: (count ?? 0) === 0,
-  });
-  if (error) throw new Error(error.message);
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  // TODO(storage): implement product image storage when a file backend is available.
+  throw new Error("Product image uploads require storage configuration.");
 
   revalidatePath(`/admin/produits/${productId}`);
   revalidatePath("/catalogue");
 }
 
 export async function deleteProductImage(productId: string, imageId: string) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("product_images").delete().eq("id", imageId);
-  if (error) throw new Error(error.message);
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  await getDb().delete(productImages).where(eq(productImages.id, imageId));
   revalidatePath(`/admin/produits/${productId}`);
 }
 
 export async function setPrimaryImage(productId: string, imageId: string) {
-  const supabase = await createClient();
-  await supabase.from("product_images").update({ is_primary: false }).eq("product_id", productId);
-  const { error } = await supabase.from("product_images").update({ is_primary: true }).eq("id", imageId);
-  if (error) throw new Error(error.message);
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  const db = getDb();
+  await db.update(productImages).set({ is_primary: false }).where(eq(productImages.product_id, productId));
+  await db.update(productImages).set({ is_primary: true }).where(eq(productImages.id, imageId));
   revalidatePath(`/admin/produits/${productId}`);
 }

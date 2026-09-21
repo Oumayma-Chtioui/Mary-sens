@@ -1,7 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { eq } from "drizzle-orm";
+import { locations } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdminApi } from "@/lib/require-admin";
 
 function readLocationFields(formData: FormData) {
   return {
@@ -17,25 +20,25 @@ function readLocationFields(formData: FormData) {
 }
 
 export async function createLocation(formData: FormData) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("locations").insert(readLocationFields(formData));
-  if (error) throw new Error(error.message);
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  await getDb().insert(locations).values(readLocationFields(formData));
   revalidatePath("/admin/points-de-vente");
   revalidatePath("/points-de-vente");
 }
 
 export async function updateLocation(locationId: string, formData: FormData) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("locations").update(readLocationFields(formData)).eq("id", locationId);
-  if (error) throw new Error(error.message);
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  await getDb().update(locations).set(readLocationFields(formData)).where(eq(locations.id, locationId));
   revalidatePath("/admin/points-de-vente");
   revalidatePath("/points-de-vente");
 }
 
 export async function deleteLocation(locationId: string) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("locations").delete().eq("id", locationId);
-  if (error) throw new Error(error.message);
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  await getDb().delete(locations).where(eq(locations.id, locationId));
   revalidatePath("/admin/points-de-vente");
   revalidatePath("/points-de-vente");
 }

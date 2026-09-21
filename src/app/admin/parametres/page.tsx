@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { getSiteSettings } from "@/lib/settings";
+import { requireAdmin } from "@/lib/require-admin";
 import { updateSettings, updateHeroImage } from "@/lib/actions/settings";
 
 export default async function AdminSettingsPage({
@@ -7,6 +8,7 @@ export default async function AdminSettingsPage({
 }: {
   searchParams: Promise<{ error?: string; success?: string; heroError?: string; heroSuccess?: string }>;
 }) {
+  await requireAdmin();
   const settings = await getSiteSettings();
   const params = await searchParams;
 

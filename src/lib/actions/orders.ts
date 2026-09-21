@@ -1,13 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { eq } from "drizzle-orm";
+import { orders } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdminApi } from "@/lib/require-admin";
 import type { OrderStatus } from "@/lib/types";
 
 export async function updateOrderStatus(orderId: string, status: OrderStatus) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
-  if (error) throw new Error(error.message);
+  const admin = await requireAdminApi();
+  if (admin instanceof Response) throw new Error("Non autorisé.");
+  await getDb().update(orders).set({ status }).where(eq(orders.id, orderId));
 
   revalidatePath("/admin/commandes");
   revalidatePath(`/admin/commandes/${orderId}`);

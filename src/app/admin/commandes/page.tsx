@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { and, desc, asc, eq, like, or } from "drizzle-orm";
+import { orders, orderItems } from "@/db/schema";
+import { getDb } from "@/lib/db";
+import { requireAdmin } from "@/lib/require-admin";
 import { ORDER_STATUSES, type OrderStatus } from "@/lib/types";
 import { formatPrice, cx } from "@/lib/utils";
 
@@ -17,30 +20,27 @@ export default async function AdminOrdersPage({
 }: {
   searchParams: Promise<{ q?: string; status?: string; sort?: string }>;
 }) {
+  await requireAdmin();
   const params = await searchParams;
-  const supabase = await createClient();
-  // PostgREST treats commas, parentheses and quotes as filter syntax inside
-  // .or(), so strip them rather than interpolating raw user input.
+  const db = getDb();
   const rawSearch = (params.q ?? "").slice(0, 100);
-  const safeSearch = rawSearch.replace(/[,()*:"'\\%]/g, "").trim();
+  const safeSearch = rawSearch.replace(/[%,]/g, "").trim();
 
-  let query = supabase
-    .from("orders")
-    .select("id, order_number, customer_name, customer_phone, total_amount, status, created_at, items:order_items(id)");
+  const conditions = [];
 
   // Only accept a status that's actually one of ours.
   if (params.status && (ORDER_STATUSES as string[]).includes(params.status)) {
-    query = query.eq("status", params.status);
+    conditions.push(eq(orders.status, params.status));
   }
 
   if (safeSearch) {
-    query = query.or(
-      `order_number.ilike.%${safeSearch}%,customer_name.ilike.%${safeSearch}%,customer_phone.ilike.%${safeSearch}%`
-    );
+    const pattern = `%${safeSearch}%`;
+    conditions.push(or(like(orders.order_number, pattern), like(orders.customer_name, pattern), like(orders.customer_phone, pattern))!);
   }
-  query = query.order("created_at", { ascending: params.sort === "asc" });
-  
-  const { data: orders } = await query;
+  const orderRows = await db.select().from(orders).where(conditions.length ? and(...conditions) : undefined).orderBy(params.sort === "asc" ? asc(orders.created_at) : desc(orders.created_at));
+  const itemRows = orderRows.length ? await db.select({ id: orderItems.id, order_id: orderItems.order_id }).from(orderItems) : [];
+  const itemCountByOrder = new Map<string, number>();
+  for (const item of itemRows) itemCountByOrder.set(item.order_id, (itemCountByOrder.get(item.order_id) ?? 0) + 1);
 
   return (
     <div>
@@ -82,7 +82,7 @@ export default async function AdminOrdersPage({
         )}
       </form>
 
-      {orders && orders.length > 0 ? (
+      {orderRows.length > 0 ? (
         <div className="overflow-x-auto border border-border bg-ivoire">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-ivoire-2 text-[11px] uppercase tracking-[0.08em] text-ink/50">
@@ -97,7 +97,7 @@ export default async function AdminOrdersPage({
               </tr>
             </thead>
             <tbody>
-              {orders.map((o: any) => (
+              {orderRows.map((o) => (
                 <tr key={o.id} className="border-b border-border last:border-0">
                   <td className="px-5 py-3.5">
                     <Link href={`/admin/commandes/${o.id}`} className="font-medium hover:text-or-deep">
@@ -109,7 +109,7 @@ export default async function AdminOrdersPage({
                   <td className="px-5 py-3.5 text-ink/60">
                     {new Date(o.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" })}
                   </td>
-                  <td className="px-5 py-3.5 text-ink/60">{o.items?.length ?? 0}</td>
+                  <td className="px-5 py-3.5 text-ink/60">{itemCountByOrder.get(o.id) ?? 0}</td>
                   <td className="px-5 py-3.5 font-medium">{formatPrice(o.total_amount)}</td>
                   <td className="px-5 py-3.5">
                     <span className={cx("rounded-full px-2.5 py-1 text-[11px] font-medium", STATUS_BADGE[o.status as OrderStatus])}>
