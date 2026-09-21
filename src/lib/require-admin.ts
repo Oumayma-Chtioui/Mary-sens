@@ -6,7 +6,7 @@ import { createAuth } from "@/auth";
 import { adminUsers } from "@/db/schema";
 import { getDb } from "@/lib/db";
 
-async function getAdminUser() {
+export async function getAdminUser() {
   const { env } = getCloudflareContext();
   const session = await createAuth(env as Env).api.getSession({ headers: await headers() });
   if (!session) return null;

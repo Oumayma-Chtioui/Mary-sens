@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { createAuth } from "@/auth";
 import { headers } from "next/headers";
-import { requireAdmin } from "@/lib/require-admin";
+import { getAdminUser } from "@/lib/require-admin";
 
 const navItems = [
   { href: "/admin", label: "Tableau de bord" },
@@ -26,7 +26,8 @@ async function logout() {
 }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  await requireAdmin();
+  const user = await getAdminUser();
+  if (!user) return <>{children}</>;
 
   return (
     <div className="min-h-screen bg-ivoire text-ink">
